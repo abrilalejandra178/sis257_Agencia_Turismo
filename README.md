@@ -22,13 +22,13 @@ Sistema de reseñas y calificaciones
 Entidades del Sistema (8 tablas)
 
 1. Usuario
-- id_usuario
+- id
 - nombre
 - apellido
-- correo
+- email
 - contraseña
-- telefono
-- fecha_registro
+- país
+- teléfono
 
 2. Destino
 - id_destino

@@ -17,9 +17,9 @@ export class Usuario {
   @Column('varchar', { length: 10 })
   contraseña: string;
 
-  @Column('varchar', { length: 8 })
-  telefono: string;
+  @Column('varchar', { length: 20 })
+  país: string;
 
-  @Column('date')
-  fecha_registro: Date;
+  @Column('varchar', { length: 8 })
+  teléfono: string;
 }

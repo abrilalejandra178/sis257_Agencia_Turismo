@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DestinosModule } from './destinos/destinos.module';
+import { GuiasTuristicosModule } from './guias_turisticos/guias_turisticos.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true
       }),
     UsuariosModule,
+    DestinosModule,
+    GuiasTuristicosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
