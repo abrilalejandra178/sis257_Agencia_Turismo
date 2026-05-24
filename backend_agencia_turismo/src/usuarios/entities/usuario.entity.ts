@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Reserva } from 'src/reservas/entities/reserva.entity';
+import { Resena } from 'src/resenas/entities/resena.entity';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('usuarios')
 export class Usuario {
@@ -22,4 +24,19 @@ export class Usuario {
 
   @Column('varchar', { length: 8 })
   teléfono: string;
+
+  @CreateDateColumn({ name: 'fecha_creacion' })
+  fechaCreacion: Date;
+
+  @UpdateDateColumn({ name: 'fecha_modificacion' })
+  fechaModificacion: Date;
+
+  @DeleteDateColumn({ name: 'fecha_eliminacion' })
+  fechaEliminacion: Date;
+
+  @OneToMany(() => Reserva, reserva => reserva.usuario)
+  reservas: Reserva[];
+
+  @OneToMany(() => Resena, resena => resena.usuario)  
+  resenas: Resena[];
 }

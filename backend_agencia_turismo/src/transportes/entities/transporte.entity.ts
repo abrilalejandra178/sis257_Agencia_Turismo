@@ -1,22 +1,27 @@
 import { PaquetesTuristico } from 'src/paquetes_turisticos/entities/paquetes_turistico.entity';
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Entity('destinos')
-export class Destino {
+@Entity('transportes')
+export class Transporte {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
   @Column('varchar', { length: 50 })
-  nombre: string;
+  tipo: string;
 
-  @Column('varchar', { length: 10000 })
-  descripción: string;
+  @Column('varchar', { length: 500 })
+  empresa: string;
 
-  @Column('varchar', { length: 10000 })
-  ubicación: string;
-
-  @Column('varchar', { length: 10000 })
-  imagen: string;
+  @Column('varchar', { length: 1000 })
+  descripcion: string;
 
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;
@@ -27,6 +32,7 @@ export class Destino {
   @DeleteDateColumn({ name: 'fecha_eliminacion' })
   fechaEliminacion: Date;
 
-  @OneToMany(() => PaquetesTuristico, paquete => paquete.destino) 
+  @OneToMany(() => PaquetesTuristico, paquete => paquete.transporte)
   paquetesTuristicos: PaquetesTuristico[];
 }
+

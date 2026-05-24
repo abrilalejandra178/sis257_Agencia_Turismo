@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GuiaTuristico } from './entities/guias_turistico.entity';
 
 @Module({
-   imports: [TypeOrmModule.forFeature([GuiaTuristico])],
+  imports: [TypeOrmModule.forFeature([GuiaTuristico])],
   controllers: [GuiasTuristicosController],
   providers: [GuiasTuristicosService],
 })

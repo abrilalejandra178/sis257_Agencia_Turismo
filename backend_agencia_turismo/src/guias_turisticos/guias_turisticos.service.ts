@@ -7,7 +7,9 @@ import { GuiaTuristico } from './entities/guias_turistico.entity';
 
 @Injectable()
 export class GuiasTuristicosService {
-  constructor(@InjectRepository(GuiaTuristico) private guiasRepository: Repository<GuiaTuristico>) {}
+  constructor(
+    @InjectRepository(GuiaTuristico) private guiasRepository: Repository<GuiaTuristico>,
+  ) {}
 
   async create(createGuiasTuristicoDto: CreateGuiasTuristicoDto): Promise<GuiaTuristico> {
     let guia = await this.guiasRepository.findOneBy({
@@ -30,7 +32,10 @@ export class GuiasTuristicosService {
     return guia;
   }
 
-  async update(id: number, updateGuiasTuristicoDto: UpdateGuiasTuristicoDto): Promise<GuiaTuristico> {
+  async update(
+    id: number,
+    updateGuiasTuristicoDto: UpdateGuiasTuristicoDto,
+  ): Promise<GuiaTuristico> {
     const guia = await this.findOne(id);
     Object.assign(guia, updateGuiasTuristicoDto);
     return this.guiasRepository.save(guia);
