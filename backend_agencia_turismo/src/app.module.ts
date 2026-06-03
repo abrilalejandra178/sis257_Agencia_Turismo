@@ -11,6 +11,7 @@ import { PaquetesTuristicosModule } from './paquetes_turisticos/paquetes_turisti
 import { ReservasModule } from './reservas/reservas.module';
 import { PagosModule } from './pagos/pagos.module';
 import { ResenasModule } from './resenas/resenas.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ResenasModule } from './resenas/resenas.module';
     ReservasModule,
     PagosModule,
     ResenasModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -40,4 +40,12 @@ export class UsuariosService {
     const usuario = await this.findOne(id);
     return this.usuariosRepository.softRemove(usuario);
   }
+
+  async findByNombre(nombre: string): Promise<Usuario | null> {
+    return this.usuariosRepository.findOneBy({ nombre });
+  }
+
+  async findByEmail(email: string): Promise<Usuario | null> {
+    return this.usuariosRepository.findOneBy({ email });
+  }
 }
