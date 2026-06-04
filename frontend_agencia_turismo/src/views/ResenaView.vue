@@ -28,7 +28,7 @@ function handleGuardar() {
 </script>
 
 <template>
-  <div class="page-resenas">
+  <div>
     <h2>Reseñas</h2>
     <Button label="Crear Nuevo" icon="pi pi-plus" @click="handleCreate" />
     <ResenaList ref="resenaListRef" @edit="handleEdit" />
@@ -42,14 +42,4 @@ function handleGuardar() {
   </div>
 </template>
 
-<style scoped>
-.page-resenas {
-  background-image: url('/images/rese.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  min-height: 100vh;
-  margin: -1.5rem;
-  padding: 1.5rem;
-}
-</style>
+<style scoped></style>

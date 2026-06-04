@@ -1,6 +1,6 @@
-    function getTokenFromLocalStorage() {
-      const tokenAuht = localStorage.getItem('token') || ''
-      if (!tokenAuht) return null
+function getTokenFromLocalStorage() {
+  const tokenAuht = localStorage.getItem('token') || ''
+  if (!tokenAuht) return null
 
   const jwtPayload = parseJwt(tokenAuht)
   const isExpired = jwtPayload.exp < Date.now() / 1000

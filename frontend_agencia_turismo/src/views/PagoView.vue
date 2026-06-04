@@ -28,7 +28,7 @@ function handleGuardar() {
 </script>
 
 <template>
-  <div class="page-pagos">
+  <div>
     <h2>Pagos</h2>
     <Button label="Crear Nuevo" icon="pi pi-plus" @click="handleCreate" />
     <PagoList ref="pagoListRef" @edit="handleEdit" />
@@ -42,14 +42,4 @@ function handleGuardar() {
   </div>
 </template>
 
-<style scoped>
-.page-pagos {
-  background-image: url('/images/pago.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  min-height: 100vh;
-  margin: -1.5rem;
-  padding: 1.5rem;
-}
-</style>
+<style scoped></style>

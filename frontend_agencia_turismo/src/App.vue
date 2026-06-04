@@ -1,66 +1,147 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/index'
+import { ref, computed } from 'vue'
+import Menu from 'primevue/menu'
+
 const authStore = useAuthStore()
+const route = useRoute()
+
+const menu = ref();
+const items = ref([
+    { label: 'Destinos', icon: 'pi pi-map-marker', route: '/destinos' },
+    { label: 'Guías', icon: 'pi pi-users', route: '/guias-turisticos' },
+    { label: 'Transportes', icon: 'pi pi-car', route: '/transportes' },
+    { label: 'Paquetes', icon: 'pi pi-briefcase', route: '/paquetes-turisticos' },
+    { label: 'Reservas', icon: 'pi pi-calendar', route: '/reservas' },
+    { label: 'Pagos', icon: 'pi pi-credit-card', route: '/pagos' },
+    { label: 'Reseñas', icon: 'pi pi-star', route: '/resenas' },
+    { label: 'Usuarios', icon: 'pi pi-user', route: '/usuarios' }
+]);
+
+const adminRoutes = ['/destinos', '/usuarios', '/reservas', '/guias-turisticos', '/transportes', '/paquetes-turisticos', '/pagos', '/resenas'];
+
+const mostrarFooter = computed(() => {
+  return !adminRoutes.includes(route.path);
+});
+
+const isAdminRoute = computed(() => {
+  return adminRoutes.includes(route.path);
+});
+
+const toggle = (event: Event) => {
+    menu.value.toggle(event);
+};
 </script>
 
 <template>
-  <nav
-    class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light"
-    id="ftco-navbar"
-  >
+	<nav :class="['navbar', 'navbar-expand-lg', 'navbar-dark', 'ftco_navbar', 'bg-dark', 'ftco-navbar-light', isAdminRoute ? 'navbar-admin' : '']" id="ftco-navbar">
+		<div class="container">
+			<RouterLink class="navbar-brand" to="/">Pacific<span>Travel Agency</span></RouterLink>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="oi oi-menu"></span> Menu
+			</button>
+
+			<div class="collapse navbar-collapse" id="ftco-nav">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item active"><RouterLink to="/" class="nav-link">Home</RouterLink></li>
+					<template v-if="authStore.token">
+						<li class="nav-item">
+							<a class="nav-link" href="#" @click.prevent="toggle" aria-haspopup="true" aria-controls="overlay_menu">
+								Administración <span class="fa fa-angle-down ml-1"></span>
+							</a>
+							<Menu ref="menu" id="overlay_menu" :model="items" :popup="true">
+								<template #item="{ item, props }">
+									<RouterLink v-if="item.route" :to="item.route" custom v-slot="{ navigate, href }">
+										<a :href="href" @click="navigate" v-bind="props.action">
+											<span :class="item.icon" />
+											<span class="ml-2">{{ item.label }}</span>
+										</a>
+									</RouterLink>
+								</template>
+							</Menu>
+						</li>
+						<li class="nav-item"><a @click="authStore.logout()" class="nav-link" style="cursor:pointer">Salir</a></li>
+					</template>
+					<template v-else>
+						<li class="nav-item"><RouterLink to="/login" class="nav-link">Iniciar Sesión</RouterLink></li>
+					</template>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<!-- END nav -->
+
+  <!-- Main Content -->
+  <main :class="{ 'admin-content': isAdminRoute }">
+    <RouterView />
+  </main>
+
+  <!-- Footer -->
+  <footer v-if="mostrarFooter" class="ftco-footer bg-bottom ftco-no-pt" style="background-image: url(/images/bg_3.jpg);">
     <div class="container">
-      <a class="navbar-brand" href="#">🌍 Agencia de Turismo</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav">
-        <span class="oi oi-menu"></span> Menu
-      </button>
-      <div class="collapse navbar-collapse" id="ftco-nav">
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item">
-            <RouterLink to="/" class="nav-link">Inicio</RouterLink>
-          </li>
-          <template v-if="authStore.token">
-            <li class="nav-item">
-              <RouterLink to="/destinos" class="nav-link">Destinos</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink to="/guias-turisticos" class="nav-link">Guías</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink to="/transportes" class="nav-link">Transportes</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink to="/paquetes-turisticos" class="nav-link">Paquetes</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink to="/reservas" class="nav-link">Reservas</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink to="/pagos" class="nav-link">Pagos</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink to="/resenas" class="nav-link">Reseñas</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink to="/usuarios" class="nav-link">Usuarios</RouterLink>
-            </li>
-            <li class="nav-item cta">
-              <a class="nav-link" @click="authStore.logout()" style="cursor: pointer">
-                <span>Salir</span>
-              </a>
-            </li>
-          </template>
-          <template v-else>
-            <li class="nav-item cta">
-              <RouterLink to="/login" class="nav-link"><span>Registrarse</span></RouterLink>
-            </li>
-          </template>
-        </ul>
+      <div class="row mb-5">
+        <div class="col-md pt-5">
+          <div class="ftco-footer-widget pt-md-5 mb-4">
+            <h2 class="ftco-heading-2">About</h2>
+            <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+            <ul class="ftco-footer-social list-unstyled float-md-left float-lft">
+              <li class="ftco-animate"><a href="#"><span class="fa fa-twitter"></span></a></li>
+              <li class="ftco-animate"><a href="#"><span class="fa fa-facebook"></span></a></li>
+              <li class="ftco-animate"><a href="#"><span class="fa fa-instagram"></span></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md pt-5 border-left">
+          <div class="ftco-footer-widget pt-md-5 mb-4 ml-md-5">
+            <h2 class="ftco-heading-2">Infromation</h2>
+            <ul class="list-unstyled">
+              <li><a href="#" class="py-2 d-block">Online Enquiry</a></li>
+              <li><a href="#" class="py-2 d-block">General Enquiries</a></li>
+              <li><a href="#" class="py-2 d-block">Booking Conditions</a></li>
+              <li><a href="#" class="py-2 d-block">Privacy and Policy</a></li>
+              <li><a href="#" class="py-2 d-block">Refund Policy</a></li>
+              <li><a href="#" class="py-2 d-block">Call Us</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md pt-5 border-left">
+          <div class="ftco-footer-widget pt-md-5 mb-4">
+            <h2 class="ftco-heading-2">Experience</h2>
+            <ul class="list-unstyled">
+              <li><a href="#" class="py-2 d-block">Adventure</a></li>
+              <li><a href="#" class="py-2 d-block">Hotel and Restaurant</a></li>
+              <li><a href="#" class="py-2 d-block">Beach</a></li>
+              <li><a href="#" class="py-2 d-block">Nature</a></li>
+              <li><a href="#" class="py-2 d-block">Camping</a></li>
+              <li><a href="#" class="py-2 d-block">Party</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md pt-5 border-left">
+          <div class="ftco-footer-widget pt-md-5 mb-4">
+            <h2 class="ftco-heading-2">Have a Questions?</h2>
+            <div class="block-23 mb-3">
+              <ul>
+                <li><span class="icon fa fa-map-marker"></span><span class="text">203 Fake St. Mountain View, San Francisco, California, USA</span></li>
+                <li><a href="#"><span class="icon fa fa-phone"></span><span class="text">+2 392 3929 210</span></a></li>
+                <li><a href="#"><span class="icon fa fa-paper-plane"></span><span class="text">info@yourdomain.com</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <p>
+            Copyright &copy;2026 All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+          </p>
+        </div>
       </div>
     </div>
-  </nav>
-
-    <RouterView />
+  </footer>
 </template>
 
-<style scoped></style>
+<style>
+/* Remove scoped to let some styles leak if necessary, but Bootstrap handles most */
+</style>

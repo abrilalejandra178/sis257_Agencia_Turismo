@@ -28,13 +28,10 @@ function handleGuardar() {
 </script>
 
 <template>
-  <div class="destino-container">
-    <h2 class="titulo">Destinos</h2>
-
-    <Button label="Crear Nuevo" icon="pi pi-plus" class="btn-crear" @click="handleCreate" />
-
+  <div>
+    <h2>Destinos</h2>
+    <Button label="Crear Nuevo" icon="pi pi-plus" @click="handleCreate" />
     <DestinoList ref="destinoListRef" @edit="handleEdit" />
-
     <DestinoSave
       :mostrar="mostrarDialog"
       :destino="destinoEdit"
@@ -45,20 +42,4 @@ function handleGuardar() {
   </div>
 </template>
 
-<style scoped>
-.titulo {
-  color: #fcfcfd;
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-.btn-crear {
-  background-color: #0acaaa !important;
-  border-color: #4caf50 !important;
-  margin-bottom: 1rem;
-}
-.btn-crear:hover {
-  background-color: #388e3c !important;
-  border-color: #388e3c !important;
-}
-</style>
+<style scoped></style>
