@@ -16,6 +16,17 @@ async function bootstrap() {
     .setDescription('API Rest para gestión de agencia de turismo')
     .setVersion('1.0')
     .addTag('destinos, guias-turisticos, transportes, paquetes-turisticos, reservas, pagos, resenas, usuarios')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Ingresa el token JWT obtenido en POST /api/v1/auth/login',
+        in: 'header',
+      },
+      'access-token',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
@@ -24,3 +35,4 @@ async function bootstrap() {
   console.log(`App corriendo en ${await app.getUrl()}`);
 }
 bootstrap();
+

@@ -20,7 +20,7 @@ export class GuiaTuristico {
   @Column('varchar', { length: 50 })
   apellido: string;
 
-  @Column('varchar', { length: 8 })
+  @Column('varchar', { length: 8, name: 'telefono' })
   teléfono: string;
 
   @Column('varchar', { length: 1000 })
@@ -29,7 +29,7 @@ export class GuiaTuristico {
   @Column('varchar', { length: 10000 })
   experiencia: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, name: 'calificacion' })
   calificación: number;
 
   @CreateDateColumn({ name: 'fecha_creacion' })

@@ -9,10 +9,10 @@ export class Destino {
   @Column('varchar', { length: 50 })
   nombre: string;
 
-  @Column('varchar', { length: 10000 })
+  @Column('varchar', { length: 10000, name: 'descripcion' })
   descripción: string;
 
-  @Column('varchar', { length: 10000 })
+  @Column('varchar', { length: 10000, name: 'ubicacion' })
   ubicación: string;
 
   @Column('varchar', { length: 10000 })
