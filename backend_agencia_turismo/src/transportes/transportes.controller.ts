@@ -1,8 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TransportesService } from './transportes.service';
 import { CreateTransporteDto } from './dto/create-transporte.dto';
 import { UpdateTransporteDto } from './dto/update-transporte.dto';
 
+@ApiTags('transportes')
+@ApiBearerAuth('access-token')
 @Controller('transportes')
 export class TransportesController {
   constructor(private readonly transportesService: TransportesService) {}

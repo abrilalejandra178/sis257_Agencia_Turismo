@@ -7,6 +7,9 @@ export class Usuario {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
+  @Column('varchar', { length: 20, unique: true })
+  usuario: string;
+
   @Column('varchar', { length: 50 })
   nombre: string;
 
@@ -16,13 +19,13 @@ export class Usuario {
   @Column('varchar', { length: 50, unique: true })
   email: string;
 
-  @Column('varchar', { length: 10 })
+  @Column('varchar', { length: 30, name: 'contrasena' })
   contraseña: string;
 
-  @Column('varchar', { length: 20 })
+  @Column('varchar', { length: 20, name: 'pais' })
   país: string;
 
-  @Column('varchar', { length: 8 })
+  @Column('varchar', { length: 8, name: 'telefono' })
   teléfono: string;
 
   @CreateDateColumn({ name: 'fecha_creacion' })

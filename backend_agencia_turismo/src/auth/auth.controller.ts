@@ -1,24 +1,18 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { AuthLoginDto } from './dto/auth-login.dto';
+import { Public } from './decorators/auth-public.decorator';
 
-export class LoginDto {
-  @ApiProperty({ example: 'admin' })
-  @IsNotEmpty({ message: 'El nombre es obligatorio' })
-  readonly nombre: string;
-
-  @ApiProperty({ example: '123456' })
-  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
-  readonly contraseña: string;
-}
-
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto.nombre, loginDto.contraseña);
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() authLoginDto: AuthLoginDto): Promise<any> {
+    return this.authService.login(authLoginDto);
   }
 }

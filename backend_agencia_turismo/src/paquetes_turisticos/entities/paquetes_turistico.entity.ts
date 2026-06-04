@@ -23,31 +23,31 @@ export class PaquetesTuristico {
   @Column('varchar', { length: 100 })
   nombre: string;
 
-  @Column('varchar', { length: 500 })
+  @Column('varchar', { length: 500, name: 'descripcion' })
   descripción: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
   precio: number;
 
-  @Column('varchar', { length: 1000 })
+  @Column('varchar', { length: 1000, name: 'duracion' })
   duración: string;
 
-  @Column('integer')
+  @Column('integer', { name: 'capacidad_maxima' })
   capacidadMaxima: number;
 
-  @Column('varchar', { length: 100 })
+  @Column('varchar', { length: 100, name: 'incluye_hospedaje' })
   incluyeHospedaje: string;
 
-  @Column('varchar', { length: 100 })
+  @Column('varchar', { length: 100, name: 'incluye_alimentacion' })
   incluyeAlimentación: string;
 
-  @Column('integer')
+  @Column('integer', { name: 'id_destino' })
   idDestino: number;
 
-  @Column('integer')
+  @Column('integer', { name: 'id_guia' })
   idGuia: number;
 
-  @Column('integer')
+  @Column('integer', { name: 'id_transporte' })
   idTransporte: number;
 
   @CreateDateColumn({ name: 'fecha_creacion' })
@@ -60,15 +60,15 @@ export class PaquetesTuristico {
   fechaEliminacion: Date;
 
   @ManyToOne(() => Destino, destino => destino.paquetesTuristicos)
-  @JoinColumn({ name: 'idDestino', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'id_destino', referencedColumnName: 'id' })
   destino: Destino;
 
   @ManyToOne(() => GuiaTuristico, guia => guia.paquetesTuristicos)
-  @JoinColumn({ name: 'idGuia', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'id_guia', referencedColumnName: 'id' })
   guia: GuiaTuristico;
 
   @ManyToOne(() => Transporte, transporte => transporte.paquetesTuristicos)
-  @JoinColumn({ name: 'idTransporte', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'id_transporte', referencedColumnName: 'id' })
   transporte: Transporte;
 
   @OneToMany(() => Reserva, reserva => reserva.paquetesTuristicos)

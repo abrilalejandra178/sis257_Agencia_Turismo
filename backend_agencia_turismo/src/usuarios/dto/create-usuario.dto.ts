@@ -1,37 +1,45 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUsuarioDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Nombre de usuario para el login', example: 'jperez' })
+  @IsNotEmpty({ message: 'El usuario es obligatorio' })
+  @IsString({ message: 'El usuario debe ser una cadena de texto' })
+  @MinLength(4, { message: 'El usuario debe tener mínimo 4 caracteres' })
+  @MaxLength(20, { message: 'El usuario no puede tener más de 20 caracteres' })
+  @Transform(({ value }): string | undefined => (typeof value === 'string' ? value.trim() : value))
+  readonly usuario: string;
+
+  @ApiProperty({ example: 'Juan' })
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   @MaxLength(50, { message: 'El nombre no puede tener más de 50 caracteres' })
   @Transform(({ value }): string | undefined => (typeof value === 'string' ? value.trim() : value))
   readonly nombre: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Pérez' })
   @IsNotEmpty({ message: 'El apellido es obligatorio' })
   @IsString({ message: 'El apellido debe ser una cadena de texto' })
   @MaxLength(50, { message: 'El apellido no puede tener más de 50 caracteres' })
   @Transform(({ value }): string | undefined => (typeof value === 'string' ? value.trim() : value))
   readonly apellido: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'juan.perez@email.com' })
   @IsEmail({}, { message: 'El email debe ser una dirección de correo electrónico válida' })
   readonly email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'secreta123' })
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
-  @MaxLength(10, { message: 'La contraseña no puede tener más de 10 caracteres' })
+  @MaxLength(30, { message: 'La contraseña no puede tener más de 30 caracteres' })
   readonly contraseña: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Bolivia' })
   @MaxLength(20, { message: 'El país no puede tener más de 20 caracteres' })
   @Transform(({ value }): string | undefined => (typeof value === 'string' ? value.trim() : value))
   readonly país: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '76543210' })
   @MaxLength(20, { message: 'El teléfono no puede tener más de 20 caracteres' })
   @Transform(({ value }): string | undefined => (typeof value === 'string' ? value.trim() : value))
   @Matches(/^\d{1,8}$/, {

@@ -1,8 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaquetesTuristicosService } from './paquetes_turisticos.service';
 import { CreatePaquetesTuristicoDto } from './dto/create-paquetes_turistico.dto';
 import { UpdatePaquetesTuristicoDto } from './dto/update-paquetes_turistico.dto';
 
+@ApiTags('paquetes-turisticos')
+@ApiBearerAuth('access-token')
 @Controller('paquetes-turisticos')
 export class PaquetesTuristicosController {
   constructor(private readonly paquetesTuristicosService: PaquetesTuristicosService) {}

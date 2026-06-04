@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
@@ -47,5 +47,16 @@ export class UsuariosService {
 
   async findByEmail(email: string): Promise<Usuario | null> {
     return this.usuariosRepository.findOneBy({ email });
+  }
+
+  async validate(usuario: string, clave: string): Promise<Usuario> {
+    const usuarioOk = await this.usuariosRepository.findOneBy({ usuario });
+    if (!usuarioOk) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+    if (usuarioOk.contraseña !== clave) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+    return usuarioOk;
   }
 }
