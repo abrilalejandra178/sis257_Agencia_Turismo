@@ -5,85 +5,62 @@ const authStore = useAuthStore()
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-    <div class="wrapper">
-      <h2>🌍 Agencia de Turismo</h2>
-      <nav>
-        <RouterLink to="/">Inicio</RouterLink>
-        <span v-if="authStore.token">
-          <RouterLink to="/destinos">Destinos</RouterLink>
-          <RouterLink to="/guias-turisticos">Guías Turísticos</RouterLink>
-          <RouterLink to="/transportes">Transportes</RouterLink>
-          <RouterLink to="/paquetes-turisticos">Paquetes Turísticos</RouterLink>
-          <RouterLink to="/reservas">Reservas</RouterLink>
-          <RouterLink to="/pagos">Pagos</RouterLink>
-          <RouterLink to="/resenas">Reseñas</RouterLink>
-          <RouterLink to="/usuarios">Usuarios</RouterLink>
-          <a @click="authStore.logout()" class="link-salir">Salir</a>
-        </span>
-        <span v-else>
-          <RouterLink to="/login">Iniciar Sesión</RouterLink>
-        </span>
-      </nav>
+  <nav
+    class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light"
+    id="ftco-navbar"
+  >
+    <div class="container">
+      <a class="navbar-brand" href="#">🌍 Agencia de Turismo</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav">
+        <span class="oi oi-menu"></span> Menu
+      </button>
+      <div class="collapse navbar-collapse" id="ftco-nav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <RouterLink to="/" class="nav-link">Inicio</RouterLink>
+          </li>
+          <template v-if="authStore.token">
+            <li class="nav-item">
+              <RouterLink to="/destinos" class="nav-link">Destinos</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/guias-turisticos" class="nav-link">Guías</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/transportes" class="nav-link">Transportes</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/paquetes-turisticos" class="nav-link">Paquetes</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/reservas" class="nav-link">Reservas</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/pagos" class="nav-link">Pagos</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/resenas" class="nav-link">Reseñas</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/usuarios" class="nav-link">Usuarios</RouterLink>
+            </li>
+            <li class="nav-item cta">
+              <a class="nav-link" @click="authStore.logout()" style="cursor: pointer">
+                <span>Salir</span>
+              </a>
+            </li>
+          </template>
+          <template v-else>
+            <li class="nav-item cta">
+              <RouterLink to="/login" class="nav-link"><span>Registrarse</span></RouterLink>
+            </li>
+          </template>
+        </ul>
+      </div>
     </div>
-  </header>
-  <RouterView />
+  </nav>
+
+    <RouterView />
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-nav a, .link-salir {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-  cursor: pointer;
-}
-nav a:first-of-type {
-  border: 0;
-}
-.link-salir {
-  color: #ef4444;
-}
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
+<style scoped></style>

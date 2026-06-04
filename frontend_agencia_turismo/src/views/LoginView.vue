@@ -13,65 +13,123 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="my-5 pt-5">
-    <h1 class="text-center">Iniciar Sesión</h1>
-    <form class="form" @submit.prevent="onSubmit">
-      <label class="form-label">Nombre:</label>
-      <input v-model="nombre" type="text" class="form-input" placeholder="Nombre" autofocus />
+  <div
+    style="
+      min-height: 100vh;
+      width: 100vw;
+      background-image: url('/images/bg_1.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 999;
+    "
+  >
+    <div
+      style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      "
+    ></div>
 
-      <label class="form-label">Contraseña:</label>
-      <input v-model="contraseña" type="password" class="form-input" placeholder="Contraseña" />
+    <div
+      style="
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 3rem 2.5rem;
+        width: 420px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      "
+    >
+      <div style="text-align: center; margin-bottom: 2rem">
+        <h2 style="color: white; font-size: 1.5rem; font-weight: 500; margin-bottom: 0.5rem">
+          🌍 Agencia de Turismo
+        </h2>
+        <p style="color: rgba(255, 255, 255, 0.75); font-size: rem">Inicia sesión</p>
+      </div>
 
-      <p v-if="error" class="text-danger">Nombre y/o contraseña incorrectos</p>
-      <input type="submit" class="form-submit" value="Ingresar" />
-    </form>
+      <form @submit.prevent="onSubmit">
+        <div style="margin-bottom: 1.2rem">
+          <label style="color: white; font-weight: 600; display: block; margin-bottom: 0.5rem"
+            >Nombre</label
+          >
+          <input
+            v-model="nombre"
+            type="text"
+            placeholder="Ingresa tu nombre"
+            autofocus
+            style="
+              width: 100%;
+              padding: 0.75rem 1rem;
+              border-radius: 8px;
+              border: 1.5px solid rgba(255, 255, 255, 0.3);
+              background: rgba(255, 255, 255, 0.15);
+              color: black;
+              font-size: 0.95rem;
+              outline: none;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+
+        <div style="margin-bottom: 1.2rem">
+          <label style="color: white; font-weight: 600; display: block; margin-bottom: 0.5rem"
+            >Contraseña</label
+          >
+          <input
+            v-model="contraseña"
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            style="
+              width: 100%;
+              padding: 0.75rem 1rem;
+              border-radius: 8px;
+              border: 1.5px solid rgba(255, 255, 255, 0.3);
+              background: rgba(255, 255, 255, 0.15);
+              color: black;
+              font-size: 0.95rem;
+              outline: none;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+
+        <p v-if="error" style="color: red; text-align: center; margin-bottom: 1rem">
+          Nombre y/o contraseña incorrectos
+        </p>
+
+        <button
+          type="submit"
+          style="
+            width: 100%;
+            padding: 0.85rem;
+            background: #f96d00;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            cursor: pointer;
+          "
+        >
+          Ingresar
+        </button>
+      </form>
+    </div>
   </div>
 </template>
 
-<style scoped>
-.text-center { text-align: center; }
-.text-danger { color: #ef4444; text-align: center; margin-top: 0.5rem; }
-.my-5 { margin-top: 3rem; }
-.pt-5 { padding-top: 2rem; }
-
-.form {
-  margin: 1.5rem auto;
-  display: flex;
-  flex-direction: column;
-  width: 20%;
-  min-width: 350px;
-  max-width: 100%;
-  background: rgba(19, 35, 47, 0.9);
-  border-radius: 5px;
-  padding: 40px;
-  box-shadow: 0 4px 10px 4px rgba(0, 0, 0, 0.3);
-}
-
-.form-label {
-  margin-top: 2rem;
-  color: white;
-  margin-bottom: 0.5rem;
-}
-
-.form-input {
-  padding: 10px 15px;
-  background: none;
-  border: 1px solid white;
-  color: white;
-}
-
-.form-submit {
-  background: #2563a8;
-  border: none;
-  border-radius: 5rem;
-  color: white;
-  margin-top: 3rem;
-  padding: 1rem 0;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.form-submit:hover {
-  background: #1a3a5c;
-}
-</style>
+<style scoped></style>

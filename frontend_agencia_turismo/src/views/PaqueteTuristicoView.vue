@@ -28,7 +28,7 @@ function handleGuardar() {
 </script>
 
 <template>
-  <div>
+  <div class="page-paquetes">
     <h2>Paquetes Turísticos</h2>
     <Button label="Crear Nuevo" icon="pi pi-plus" @click="handleCreate" />
     <PaqueteTuristicoList ref="paqueteListRef" @edit="handleEdit" />
@@ -42,4 +42,14 @@ function handleGuardar() {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.page-paquetes {
+  background-image: url('/images/paquete.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  margin: -1.5rem;
+  padding: 1.5rem;
+}
+</style>
