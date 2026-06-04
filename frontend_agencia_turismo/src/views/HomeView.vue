@@ -17,11 +17,11 @@ onMounted(() => {
       <div class="container">
         <div class="row no-gutters slider-text js-fullheight align-items-center" data-scrollax-parent="true">
           <div class="col-md-7 ftco-animate">
-            <span class="subheading">Welcome to Pacific</span>
-            <h1 class="mb-4">Discover Your Favorite Place with Us</h1>
-            <p class="caps">Travel to the any corner of the world, without going around in circles</p>
+            <span class="subheading">Welcome to Bolivia</span>
+            <h1 class="mb-4">Descubre tu lugar favorito con nosotros</h1>
+            <p class="caps">Viaja a cualquier rincón de Bolivia, sin ir en círculos</p>
           </div>
-          <a href="https://vimeo.com/45830194" class="icon-video popup-vimeo d-flex align-items-center justify-content-center mb-4">
+          <a href="https://vimeo.com/43722632" class="icon-video popup-vimeo d-flex align-items-center justify-content-center mb-4">
             <span class="fa fa-play"></span>
           </a>
         </div>
@@ -51,7 +51,7 @@ onMounted(() => {
                         <div class="row no-gutters">
                           <div class="col-md d-flex">
                             <div class="form-group p-4 border-0">
-                              <label for="#">Destination</label>
+                              <label for="#">Destino</label>
                               <div class="form-field">
                                 <div class="icon"><span class="fa fa-search"></span></div>
                                 <input type="text" class="form-control" placeholder="Search place">
@@ -194,10 +194,9 @@ onMounted(() => {
           <div class="col-md-6 order-md-last heading-section pl-md-5 ftco-animate d-flex align-items-center">
             <div class="w-100">
               <span class="subheading">Welcome to Pacific</span>
-              <h2 class="mb-4">It's time to start your adventure</h2>
-              <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p>
-              <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.
-              A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+              <h2 class="mb-4">Es hora de empezar la aventura</h2>
+              <p>Rodeado de impresionantes paisajes naturales y una rica herencia cultural, este destino ofrece experiencias únicas para los viajeros. Sus atractivos naturales, su gastronomía tradicional y la hospitalidad de su gente lo convierten en un lugar ideal para descubrir y disfrutar.</p>
+              <p>Entre imponentes cordilleras, valles encantadores y paisajes de extraordinaria belleza, Bolivia ofrece destinos únicos para todos los viajeros. Desde los extensos salares hasta las lagunas de colores y los pueblos llenos de tradición, cada lugar revela una nueva aventura por descubrir.</p>
               <p><a href="#" class="btn btn-primary py-3 px-4">Search Destination</a></p>
             </div>
           </div>
@@ -207,8 +206,8 @@ onMounted(() => {
                 <div class="services services-1 color-1 d-block img" style="background-image: url(/images/services-1.jpg);">
                   <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-paragliding"></span></div>
                   <div class="media-body">
-                    <h3 class="heading mb-3">Activities</h3>
-                    <p>A small river named Duden flows by their place and supplies it with the necessary</p>
+                    <h3 class="heading mb-3">Actividades</h3>
+                    <p>Un pequeño río cristalino atraviesa la región, aportando vida y belleza a cada rincón del paisaje.</p>
                   </div>
                 </div>      
               </div>
@@ -217,7 +216,7 @@ onMounted(() => {
                   <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
                   <div class="media-body">
                     <h3 class="heading mb-3">Travel Arrangements</h3>
-                    <p>A small river named Duden flows by their place and supplies it with the necessary</p>
+                    <p>Imponentes montañas rodean el paisaje, ofreciendo vistas espectaculares y una conexión única con la naturaleza.</p>
                   </div>
                 </div>    
               </div>
