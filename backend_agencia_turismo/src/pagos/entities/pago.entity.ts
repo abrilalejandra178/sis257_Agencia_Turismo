@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { Reserva } from 'src/reservas/entities/reserva.entity';
 import {
   Column,
@@ -22,10 +21,10 @@ export class Pago {
   @Column('date', { name: 'fecha_pago' })
   fechaPago: Date;
 
-  @Column('varchar', { length: 100 })
+  @Column('varchar', { length: 100, name: 'metodo_pago' })
   metodoPago: string;
 
-  @Column('varchar', { length: 100 })
+  @Column('varchar', { length: 100, name: 'estado_pago' })
   estadoPago: string;
 
   @Column('int', { name: 'id_reserva' })

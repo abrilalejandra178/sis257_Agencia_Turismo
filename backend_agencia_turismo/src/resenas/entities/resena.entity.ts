@@ -19,7 +19,7 @@ export class Resena {
   @Column('varchar', { length: 500 })
   comentario: string;
 
-  @Column('decimal', { name: 'total', precision: 10, scale: 2 })
+  @Column('decimal', { name: 'calificacion', precision: 10, scale: 2 })
   calificacion: number;
 
   @Column('date', { name: 'fecha' })

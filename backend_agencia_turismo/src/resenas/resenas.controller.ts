@@ -1,8 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResenasService } from './resenas.service';
 import { CreateResenaDto } from './dto/create-resena.dto';
 import { UpdateResenaDto } from './dto/update-resena.dto';
 
+@ApiTags('resenas')
+@ApiBearerAuth('access-token')
 @Controller('resenas')
 export class ResenasController {
   constructor(private readonly resenasService: ResenasService) {}
