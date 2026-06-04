@@ -28,7 +28,7 @@ const useAuthStore = defineStore('auth', {
       localStorage.removeItem('user')
       localStorage.removeItem('token')
       this.$reset()
-      router.push('/login')
+      router.push('/')
     },
   },
 })

@@ -10,6 +10,22 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum EstadoPago {
+  PENDIENTE = 'pendiente',
+  PROCESANDO = 'procesando',
+  COMPLETADO = 'completado',
+  FALLIDO = 'fallido',
+  REEMBOLSADO = 'reembolsado',
+}
+
+export enum MetodoPago {
+  EFECTIVO = 'efectivo',
+  TARJETA_CREDITO = 'tarjeta_credito',
+  TARJETA_DEBITO = 'tarjeta_debito',
+  TRANSFERENCIA = 'transferencia',
+  CHEQUE = 'cheque',
+}
+
 @Entity('pagos')
 export class Pago {
   @PrimaryGeneratedColumn('identity')
@@ -18,14 +34,27 @@ export class Pago {
   @Column('decimal', { name: 'total', precision: 10, scale: 2 })
   monto: number;
 
-  @Column('date', { name: 'fecha_pago' })
+  @Column('date', { name: 'fecha_pago', nullable: true })
   fechaPago: Date;
 
-  @Column('varchar', { length: 100, name: 'metodo_pago' })
-  metodoPago: string;
+  @Column({
+    type: 'enum',
+    enum: MetodoPago,
+    default: MetodoPago.EFECTIVO,
+    name: 'metodo_pago',
+  })
+  metodoPago: MetodoPago;
 
-  @Column('varchar', { length: 100, name: 'estado_pago' })
-  estadoPago: string;
+  @Column({
+    type: 'enum',
+    enum: EstadoPago,
+    default: EstadoPago.PENDIENTE,
+    name: 'estado_pago',
+  })
+  estadoPago: EstadoPago;
+
+  @Column('varchar', { length: 255, name: 'referencia_pago', nullable: true })
+  referenciaPago?: string;
 
   @Column('int', { name: 'id_reserva' })
   idReserva: number;

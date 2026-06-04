@@ -31,7 +31,7 @@ export class CreateUsuarioDto {
 
   @ApiProperty({ example: 'secreta123' })
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
-  @MaxLength(30, { message: 'La contraseña no puede tener más de 30 caracteres' })
+  @MaxLength(360, { message: 'La contraseña no puede tener más de 360 caracteres' })
   readonly contraseña: string;
 
   @ApiProperty({ example: 'Bolivia' })

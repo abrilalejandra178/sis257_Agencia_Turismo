@@ -4,6 +4,7 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuariosService {
@@ -15,8 +16,15 @@ export class UsuariosService {
     });
     if (usuario) throw new ConflictException('El usuario ya existe');
 
+    usuario = await this.usuariosRepository.findOneBy({
+      usuario: createUsuarioDto.usuario.trim(),
+    });
+    if (usuario) throw new ConflictException('El nombre de usuario ya existe');
+
     usuario = new Usuario();
     Object.assign(usuario, createUsuarioDto);
+    // Hashear contraseña antes de guardar
+    usuario.contraseña = await bcrypt.hash(createUsuarioDto.contraseña, 10);
     return this.usuariosRepository.save(usuario);
   }
 
@@ -54,7 +62,8 @@ export class UsuariosService {
     if (!usuarioOk) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
-    if (usuarioOk.contraseña !== clave) {
+    const isMatch = await bcrypt.compare(clave, usuarioOk.contraseña);
+    if (!isMatch) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
     return usuarioOk;

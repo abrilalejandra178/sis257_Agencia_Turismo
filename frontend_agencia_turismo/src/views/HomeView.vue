@@ -18,7 +18,7 @@ onMounted(() => {
         <div class="row no-gutters slider-text js-fullheight align-items-center" data-scrollax-parent="true">
           <div class="col-md-7 ftco-animate">
             <span class="subheading">Welcome to Bolivia</span>
-            <h1 class="mb-4">Descubre tu lugar favorito con nosotros</h1>
+            <h1 class="mb-4">Descubre tu lugar favorito</h1>
             <p class="caps">Viaja a cualquier rincón de Bolivia, sin ir en círculos</p>
           </div>
           <a href="https://vimeo.com/43722632" class="icon-video popup-vimeo d-flex align-items-center justify-content-center mb-4">
@@ -35,140 +35,19 @@ onMounted(() => {
             <div class="ftco-search d-flex justify-content-center">
               <div class="row">
                 <div class="col-md-12 nav-link-wrap">
-                  <div class="nav nav-pills text-center" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                    <a class="nav-link active mr-md-1" id="v-pills-1-tab" data-toggle="pill" href="#v-pills-1" role="tab" aria-controls="v-pills-1" aria-selected="true">Search Tour</a>
-
-                    <a class="nav-link" id="v-pills-2-tab" data-toggle="pill" href="#v-pills-2" role="tab" aria-controls="v-pills-2" aria-selected="false">Hotel</a>
-
-                  </div>
+                  
                 </div>
                 <div class="col-md-12 tab-wrap">
                   
                   <div class="tab-content" id="v-pills-tabContent">
 
-                    <div class="tab-pane fade show active" id="v-pills-1" role="tabpanel" aria-labelledby="v-pills-nextgen-tab">
-                      <form action="#" class="search-property-1">
-                        <div class="row no-gutters">
-                          <div class="col-md d-flex">
-                            <div class="form-group p-4 border-0">
-                              <label for="#">Destino</label>
-                              <div class="form-field">
-                                <div class="icon"><span class="fa fa-search"></span></div>
-                                <input type="text" class="form-control" placeholder="Search place">
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md d-flex">
-                            <div class="form-group p-4">
-                              <label for="#">Check-in date</label>
-                              <div class="form-field">
-                                <div class="icon"><span class="fa fa-calendar"></span></div>
-                                <input type="text" class="form-control checkin_date" placeholder="Check In Date">
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md d-flex">
-                            <div class="form-group p-4">
-                              <label for="#">Check-out date</label>
-                              <div class="form-field">
-                                <div class="icon"><span class="fa fa-calendar"></span></div>
-                                <input type="text" class="form-control checkout_date" placeholder="Check Out Date">
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md d-flex">
-                            <div class="form-group p-4">
-                              <label for="#">Price Limit</label>
-                              <div class="form-field">
-                                <div class="select-wrap">
-                                  <div class="icon"><span class="fa fa-chevron-down"></span></div>
-                                  <select name="" id="" class="form-control">
-                                    <option value="">$100</option>
-                                    <option value="">$10,000</option>
-                                    <option value="">$50,000</option>
-                                    <option value="">$100,000</option>
-                                    <option value="">$200,000</option>
-                                    <option value="">$300,000</option>
-                                    <option value="">$400,000</option>
-                                    <option value="">$500,000</option>
-                                    <option value="">$600,000</option>
-                                    <option value="">$700,000</option>
-                                    <option value="">$800,000</option>
-                                    <option value="">$900,000</option>
-                                    <option value="">$1,000,000</option>
-                                    <option value="">$2,000,000</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md d-flex">
-                            <div class="form-group d-flex w-100 border-0">
-                              <div class="form-field w-100 align-items-center d-flex">
-                                <input type="submit" value="Search" class="align-self-stretch form-control btn btn-primary">
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-
                     <div class="tab-pane fade" id="v-pills-2" role="tabpanel" aria-labelledby="v-pills-performance-tab">
                       <form action="#" class="search-property-1">
                         <div class="row no-gutters">
-                          <div class="col-lg d-flex">
-                            <div class="form-group p-4 border-0">
-                              <label for="#">Destination</label>
-                              <div class="form-field">
-                                <div class="icon"><span class="fa fa-search"></span></div>
-                                <input type="text" class="form-control" placeholder="Search place">
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-lg d-flex">
-                            <div class="form-group p-4">
-                              <label for="#">Check-in date</label>
-                              <div class="form-field">
-                                <div class="icon"><span class="fa fa-calendar"></span></div>
-                                <input type="text" class="form-control checkin_date" placeholder="Check In Date">
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-lg d-flex">
-                            <div class="form-group p-4">
-                              <label for="#">Check-out date</label>
-                              <div class="form-field">
-                                <div class="icon"><span class="fa fa-calendar"></span></div>
-                                <input type="text" class="form-control checkout_date" placeholder="Check Out Date">
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-lg d-flex">
-                            <div class="form-group p-4">
-                              <label for="#">Price Limit</label>
-                              <div class="form-field">
-                                <div class="select-wrap">
-                                  <div class="icon"><span class="fa fa-chevron-down"></span></div>
-                                  <select name="" id="" class="form-control">
-                                    <option value="">$100</option>
-                                    <option value="">$10,000</option>
-                                    <option value="">$50,000</option>
-                                    <option value="">$100,000</option>
-                                    <option value="">$200,000</option>
-                                    <option value="">$300,000</option>
-                                    <option value="">$400,000</option>
-                                    <option value="">$500,000</option>
-                                    <option value="">$600,000</option>
-                                    <option value="">$700,000</option>
-                                    <option value="">$800,000</option>
-                                    <option value="">$900,000</option>
-                                    <option value="">$1,000,000</option>
-                                    <option value="">$2,000,000</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                        
+                     
+                        
+                          
                           <div class="col-lg d-flex">
                             <div class="form-group d-flex w-100 border-0">
                               <div class="form-field w-100 align-items-center d-flex">
@@ -194,9 +73,9 @@ onMounted(() => {
           <div class="col-md-6 order-md-last heading-section pl-md-5 ftco-animate d-flex align-items-center">
             <div class="w-100">
               <span class="subheading">Welcome to Pacific</span>
-              <h2 class="mb-4">Es hora de empezar la aventura</h2>
-              <p>Rodeado de impresionantes paisajes naturales y una rica herencia cultural, este destino ofrece experiencias únicas para los viajeros. Sus atractivos naturales, su gastronomía tradicional y la hospitalidad de su gente lo convierten en un lugar ideal para descubrir y disfrutar.</p>
-              <p>Entre imponentes cordilleras, valles encantadores y paisajes de extraordinaria belleza, Bolivia ofrece destinos únicos para todos los viajeros. Desde los extensos salares hasta las lagunas de colores y los pueblos llenos de tradición, cada lugar revela una nueva aventura por descubrir.</p>
+              <h2 class="mb-4">Es momento de iniciar tu aventura</h2>
+              <p>Bolivia ofrece una gran variedad de destinos turísticos que combinan naturaleza, cultura e historia. Sus paisajes únicos, su diversidad geográfica y sus tradiciones convierten al país en un destino atractivo para viajeros nacionales e internacionales.</p>
+              <p>Bolivia, ubicada en el corazón de Sudamérica, es un destino turístico que combina naturaleza, cultura e historia. Sus impresionantes paisajes, su patrimonio cultural y la calidez de su gente ofrecen experiencias únicas para visitantes nacionales e internacionales.</p>
               <p><a href="#" class="btn btn-primary py-3 px-4">Search Destination</a></p>
             </div>
           </div>
@@ -207,7 +86,7 @@ onMounted(() => {
                   <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-paragliding"></span></div>
                   <div class="media-body">
                     <h3 class="heading mb-3">Actividades</h3>
-                    <p>Un pequeño río cristalino atraviesa la región, aportando vida y belleza a cada rincón del paisaje.</p>
+                    <p>Disfruta de actividades turísticas diseñadas para vivir experiencias únicas: senderismo, recorridos culturales, visitas a sitios históricos, turismo de aventura y exploración de los principales atractivos naturales de Bolivia.</p>
                   </div>
                 </div>      
               </div>
@@ -215,8 +94,8 @@ onMounted(() => {
                 <div class="services services-1 color-2 d-block img" style="background-image: url(/images/services-2.jpg);">
                   <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
                   <div class="media-body">
-                    <h3 class="heading mb-3">Travel Arrangements</h3>
-                    <p>Imponentes montañas rodean el paisaje, ofreciendo vistas espectaculares y una conexión única con la naturaleza.</p>
+                    <h3 class="heading mb-3">Arreglos de Viaje</h3>
+                    <p>Planifica tu viaje con nuestros servicios de arreglos turísticos personalizados para una experiencia inolvidable en Bolivia.</p>
                   </div>
                 </div>    
               </div>
@@ -224,8 +103,8 @@ onMounted(() => {
                 <div class="services services-1 color-3 d-block img" style="background-image: url(/images/services-3.jpg);">
                   <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-tour-guide"></span></div>
                   <div class="media-body">
-                    <h3 class="heading mb-3">Private Guide</h3>
-                    <p>A small river named Duden flows by their place and supplies it with the necessary</p>
+                    <h3 class="heading mb-3">Guía Privado</h3>
+                    <p>Disfruta de la guía personalizada de nuestros expertos locales para una experiencia turística auténtica y enriquecedora en Bolivia.</p>
                   </div>
                 </div>      
               </div>
@@ -233,8 +112,8 @@ onMounted(() => {
                 <div class="services services-1 color-4 d-block img" style="background-image: url(/images/services-4.jpg);">
                   <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-map"></span></div>
                   <div class="media-body">
-                    <h3 class="heading mb-3">Location Manager</h3>
-                    <p>A small river named Duden flows by their place and supplies it with the necessary</p>
+                    <h3 class="heading mb-3">Gestión de Destinos</h3>
+                    <p>Administra los destinos turísticos y puntos de interés, facilitando la gestión de información geográfica y la planificación de experiencias para los visitantes.</p>
                   </div>
                 </div>      
               </div>
@@ -247,10 +126,7 @@ onMounted(() => {
     <section class="ftco-section img ftco-select-destination" style="background-image: url(/images/bg_3.jpg);">
       <div class="container">
         <div class="row justify-content-center pb-4">
-          <div class="col-md-12 heading-section text-center ftco-animate">
-            <span class="subheading">Pacific Provide Places</span>
-            <h2 class="mb-4">Select Your Destination</h2>
-          </div>
+          
         </div>
       </div>
       <div class="container container-2">
@@ -261,7 +137,7 @@ onMounted(() => {
                 <div class="project-destination">
                   <a href="#" class="img" style="background-image: url(/images/place-1.jpg);">
                     <div class="text">
-                      <h3>Philippines</h3>
+                      <h3>Cochabamba</h3>
                       <span>8 Tours</span>
                     </div>
                   </a>
@@ -271,7 +147,7 @@ onMounted(() => {
                 <div class="project-destination">
                   <a href="#" class="img" style="background-image: url(/images/place-2.jpg);">
                     <div class="text">
-                      <h3>Canada</h3>
+                      <h3>Santa Cruz</h3>
                       <span>2 Tours</span>
                     </div>
                   </a>
@@ -281,7 +157,7 @@ onMounted(() => {
                 <div class="project-destination">
                   <a href="#" class="img" style="background-image: url(/images/place-3.jpg);">
                     <div class="text">
-                      <h3>Thailand</h3>
+                      <h3>Chuquisaca</h3>
                       <span>5 Tours</span>
                     </div>
                   </a>
@@ -291,7 +167,7 @@ onMounted(() => {
                 <div class="project-destination">
                   <a href="#" class="img" style="background-image: url(/images/place-4.jpg);">
                     <div class="text">
-                      <h3>Autralia</h3>
+                      <h3>Oruro</h3>
                       <span>5 Tours</span>
                     </div>
                   </a>
@@ -317,8 +193,8 @@ onMounted(() => {
       <div class="container">
         <div class="row justify-content-center pb-4">
           <div class="col-md-12 heading-section text-center ftco-animate">
-            <span class="subheading">Destination</span>
-            <h2 class="mb-4">Tour Destination</h2>
+            <span class="subheading">Destinos</span>
+            <h2 class="mb-4">Nuestros Destinos</h2>
           </div>
         </div>
         <div class="row">

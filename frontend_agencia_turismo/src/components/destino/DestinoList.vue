@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Destino } from '@/models/destino'
 import http from '@/plugins/axios'
-import { Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
+import { Column, DataTable, Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
 import Button from 'primevue/button'
 import { computed, onMounted, ref } from 'vue'
 
@@ -47,38 +47,45 @@ defineExpose({ obtenerLista })
 
 <template>
   <div>
-    <div class="col-7 pl-0 mt-3">
+    <div class="mb-4">
       <InputGroup>
         <InputGroupAddon><i class="pi pi-search"></i></InputGroupAddon>
         <InputText v-model="busqueda" type="text" placeholder="Buscar por nombre o ubicación" />
       </InputGroup>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Nro.</th>
-          <th>Nombre</th>
-          <th>Descripción</th>
-          <th>Ubicación</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(destino, index) in destinosFiltrados" :key="destino.id">
-          <td>{{ index + 1 }}</td>
-          <td>{{ destino.nombre }}</td>
-          <td>{{ destino.descripción }}</td>
-          <td>{{ destino.ubicación }}</td>
-          <td>
-            <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(destino)" />
-            <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(destino)" />
-          </td>
-        </tr>
-        <tr v-if="destinosFiltrados.length === 0">
-          <td colspan="5">No se encontraron resultados.</td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTable
+      :value="destinosFiltrados"
+      paginator
+      :rows="10"
+      :rowsPerPageOptions="[5, 10, 25]"
+      paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      currentPageReportTemplate="{first} a {last} de {totalRecords}"
+      scrollable
+      tableStyle="min-width: 50rem"
+    >
+      <template #paginatorstart>
+        <Button type="button" icon="pi pi-refresh" text @click="obtenerLista" />
+      </template>
+      <Column field="id" header="ID" sortable style="width: 80px" />
+      <Column field="nombre" header="Nombre" sortable />
+      <Column field="descripción" header="Descripción" sortable />
+      <Column field="ubicación" header="Ubicación" sortable />
+      <Column field="imagen" header="Imagen" sortable>
+        <template #body="{ data }">
+          <img v-if="data.imagen" :src="data.imagen" alt="Destino" style="width:80px;height:60px;object-fit:cover;border-radius:4px;" />
+          <span v-else class="text-gray-400">—</span>
+        </template>
+      </Column>
+      <Column header="Acciones" style="min-width: 120px">
+        <template #body="{ data }">
+          <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(data)" />
+          <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(data)" />
+        </template>
+      </Column>
+      <template #empty>
+        <div class="p-4 text-center text-gray-500">No se encontraron destinos.</div>
+      </template>
+    </DataTable>
     <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación" :style="{ width: '25rem' }">
       <p>¿Estás seguro de que deseas eliminar este registro?</p>
       <div class="flex justify-end gap-2">

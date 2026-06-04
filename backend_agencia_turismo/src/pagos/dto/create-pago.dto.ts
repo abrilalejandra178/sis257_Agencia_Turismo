@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsDateString, IsDefined, IsInt, IsNotEmpty, IsNumber, IsEnum, IsOptional, IsString } from 'class-validator';
+import { EstadoPago, MetodoPago } from '../entities/pago.entity';
 
 export class CreatePagoDto {
   @ApiProperty({ example: 500.00 })
@@ -12,16 +13,23 @@ export class CreatePagoDto {
   @IsDateString({}, { message: 'La fecha de pago debe ser una fecha válida' })
   readonly fechaPago: Date;
 
-  @ApiProperty({ example: 'Transferencia Bancaria' })
+  @ApiProperty({ example: 'efectivo', enum: MetodoPago })
   @IsNotEmpty({ message: 'El método de pago es obligatorio' })
-  readonly metodoPago: string;
+  @IsEnum(MetodoPago, { message: 'El método de pago debe ser válido' })
+  readonly metodoPago: MetodoPago;
 
-  @ApiProperty({ example: 'Completado' })
+  @ApiProperty({ example: 'completado', enum: EstadoPago })
   @IsNotEmpty({ message: 'El estado de pago es obligatorio' })
-  readonly estadoPago: string;
+  @IsEnum(EstadoPago, { message: 'El estado de pago debe ser válido' })
+  readonly estadoPago: EstadoPago;
 
   @ApiProperty({ example: 1 })
   @IsDefined({ message: 'El campo idReserva es obligatorio' })
   @IsInt({ message: 'El campo idReserva debe ser un número entero' })
   readonly idReserva: number;
+
+  @ApiProperty({ example: 'REF-123456', required: false })
+  @IsOptional()
+  @IsString()
+  readonly referenciaPago?: string;
 }

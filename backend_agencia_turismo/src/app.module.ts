@@ -13,6 +13,7 @@ import { ReservasModule } from './reservas/reservas.module';
 import { PagosModule } from './pagos/pagos.module';
 import { ResenasModule } from './resenas/resenas.module';
 import { AuthModule } from './auth/auth.module';
+import { VentasModule } from './ventas/ventas.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
@@ -38,6 +39,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     PagosModule,
     ResenasModule,
     AuthModule,
+    VentasModule,
   ],
   controllers: [AppController],
   providers: [

@@ -114,7 +114,7 @@ watch(
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="fechaReserva" class="font-semibold w-4">Fecha Reserva</label>
-        <InputText id="fechaReserva" v-model="reserva.fechaReserva" type="date" class="flex-auto" />
+        <InputText id="fechaReserva" v-model="reserva.fechaReserva as any" type="date" class="flex-auto" />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="cantidadPersonas" class="font-semibold w-4">Personas</label>

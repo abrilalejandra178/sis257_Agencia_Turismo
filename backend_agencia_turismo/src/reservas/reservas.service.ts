@@ -47,6 +47,6 @@ export class ReservasService {
 
   async remove(id: number): Promise<void> {
     const reserva = await this.findOne(id);
-    await this.reservaRepository.remove(reserva);
+    await this.reservaRepository.softRemove(reserva);
   }
 }

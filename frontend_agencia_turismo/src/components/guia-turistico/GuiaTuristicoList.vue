@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GuiaTuristico } from '@/models/guia-turistico'
 import http from '@/plugins/axios'
-import { Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
+import { Column, DataTable, Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
 import Button from 'primevue/button'
 import { computed, onMounted, ref } from 'vue'
 
@@ -35,7 +35,8 @@ const guiasFiltrados = computed(() => {
   return guias.value.filter(
     (guia) =>
       guia.nombre.toLowerCase().includes(busqueda.value.toLowerCase()) ||
-      guia.apellido.toLowerCase().includes(busqueda.value.toLowerCase()),
+      guia.apellido.toLowerCase().includes(busqueda.value.toLowerCase()) ||
+      guia.idioma.toLowerCase().includes(busqueda.value.toLowerCase()),
   )
 })
 
@@ -47,42 +48,47 @@ defineExpose({ obtenerLista })
 
 <template>
   <div>
-    <div class="col-7 pl-0 mt-3">
+    <div class="mb-4">
       <InputGroup>
         <InputGroupAddon><i class="pi pi-search"></i></InputGroupAddon>
-        <InputText v-model="busqueda" type="text" placeholder="Buscar por nombre o apellido" />
+        <InputText v-model="busqueda" type="text" placeholder="Buscar por nombre, apellido o idioma" />
       </InputGroup>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Nro.</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Teléfono</th>
-          <th>Idioma</th>
-          <th>Calificación</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(guia, index) in guiasFiltrados" :key="guia.id">
-          <td>{{ index + 1 }}</td>
-          <td>{{ guia.nombre }}</td>
-          <td>{{ guia.apellido }}</td>
-          <td>{{ guia.teléfono }}</td>
-          <td>{{ guia.idioma }}</td>
-          <td>{{ guia.calificación }}</td>
-          <td>
-            <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(guia)" />
-            <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(guia)" />
-          </td>
-        </tr>
-        <tr v-if="guiasFiltrados.length === 0">
-          <td colspan="7">No se encontraron resultados.</td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTable
+      :value="guiasFiltrados"
+      paginator
+      :rows="10"
+      :rowsPerPageOptions="[5, 10, 25]"
+      paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      currentPageReportTemplate="{first} a {last} de {totalRecords}"
+      scrollable
+      tableStyle="min-width: 50rem"
+    >
+      <template #paginatorstart>
+        <Button type="button" icon="pi pi-refresh" text @click="obtenerLista" />
+      </template>
+      <Column field="id" header="ID" sortable style="width: 80px" />
+      <Column field="nombre" header="Nombre" sortable />
+      <Column field="apellido" header="Apellido" sortable />
+      <Column field="teléfono" header="Teléfono" sortable />
+      <Column field="idioma" header="Idioma" sortable />
+      <Column field="experiencia" header="Experiencia" sortable />
+      <Column field="calificación" header="Calificación" sortable>
+        <template #body="{ data }">
+          <span class="text-orange-500 font-bold">{{ data.calificación }}</span>
+          <i class="pi pi-star-fill text-yellow-400 ml-1 text-xs"></i>
+        </template>
+      </Column>
+      <Column header="Acciones" style="min-width: 120px">
+        <template #body="{ data }">
+          <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(data)" />
+          <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(data)" />
+        </template>
+      </Column>
+      <template #empty>
+        <div class="p-4 text-center text-gray-500">No se encontraron guías.</div>
+      </template>
+    </DataTable>
     <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación" :style="{ width: '25rem' }">
       <p>¿Estás seguro de que deseas eliminar este registro?</p>
       <div class="flex justify-end gap-2">

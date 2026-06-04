@@ -1,6 +1,7 @@
 import { Reserva } from 'src/reservas/entities/reserva.entity';
 import { Resena } from 'src/resenas/entities/resena.entity';
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { RolUsuario } from '../enums/rol-usuario.enum';
 
 @Entity('usuarios')
 export class Usuario {
@@ -19,7 +20,7 @@ export class Usuario {
   @Column('varchar', { length: 50, unique: true })
   email: string;
 
-  @Column('varchar', { length: 30, name: 'contrasena' })
+  @Column('varchar', { length: 360, name: 'contrasena' })
   contraseña: string;
 
   @Column('varchar', { length: 20, name: 'pais' })
@@ -27,6 +28,14 @@ export class Usuario {
 
   @Column('varchar', { length: 8, name: 'telefono' })
   teléfono: string;
+
+  @Column({
+    type: 'enum',
+    enum: RolUsuario,
+    default: RolUsuario.GERENTE,
+    name: 'rol'
+  })
+  rol: RolUsuario;
 
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;

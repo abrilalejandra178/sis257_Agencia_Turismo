@@ -133,7 +133,7 @@ watch(
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="fecha" class="font-semibold w-4">Fecha</label>
-        <InputText id="fecha" v-model="resena.fecha" type="date" class="flex-auto" />
+        <InputText id="fecha" v-model="resena.fecha as any" type="date" class="flex-auto" />
       </div>
       <div class="flex justify-end gap-2">
         <Button

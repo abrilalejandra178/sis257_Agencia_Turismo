@@ -44,6 +44,6 @@ export class PagosService {
 
   async remove(id: number): Promise<void> {
     const pago = await this.findOne(id);
-    await this.pagoRepository.remove(pago);
+    await this.pagoRepository.softRemove(pago);
   }
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Usuario } from '@/models/usuario'
 import http from '@/plugins/axios'
-import { Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
+import { Column, DataTable, Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
 import Button from 'primevue/button'
 import { computed, onMounted, ref } from 'vue'
 
@@ -35,7 +35,8 @@ const usuariosFiltrados = computed(() => {
   return usuarios.value.filter(
     (usuario) =>
       usuario.nombre.toLowerCase().includes(busqueda.value.toLowerCase()) ||
-      usuario.email.toLowerCase().includes(busqueda.value.toLowerCase()),
+      usuario.email.toLowerCase().includes(busqueda.value.toLowerCase()) ||
+      usuario.usuario.toLowerCase().includes(busqueda.value.toLowerCase()),
   )
 })
 
@@ -47,42 +48,50 @@ defineExpose({ obtenerLista })
 
 <template>
   <div>
-    <div class="col-7 pl-0 mt-3">
+    <div class="mb-4">
       <InputGroup>
         <InputGroupAddon><i class="pi pi-search"></i></InputGroupAddon>
-        <InputText v-model="busqueda" type="text" placeholder="Buscar por nombre o email" />
+        <InputText v-model="busqueda" type="text" placeholder="Buscar por nombre, usuario o email" />
       </InputGroup>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Nro.</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Email</th>
-          <th>País</th>
-          <th>Teléfono</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(usuario, index) in usuariosFiltrados" :key="usuario.id">
-          <td>{{ index + 1 }}</td>
-          <td>{{ usuario.nombre }}</td>
-          <td>{{ usuario.apellido }}</td>
-          <td>{{ usuario.email }}</td>
-          <td>{{ usuario.país }}</td>
-          <td>{{ usuario.teléfono }}</td>
-          <td>
-            <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(usuario)" />
-            <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(usuario)" />
-          </td>
-        </tr>
-        <tr v-if="usuariosFiltrados.length === 0">
-          <td colspan="7">No se encontraron resultados.</td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTable
+      :value="usuariosFiltrados"
+      paginator
+      :rows="10"
+      :rowsPerPageOptions="[5, 10, 25]"
+      paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      currentPageReportTemplate="{first} a {last} de {totalRecords}"
+      scrollable
+      tableStyle="min-width: 50rem"
+    >
+      <template #paginatorstart>
+        <Button type="button" icon="pi pi-refresh" text @click="obtenerLista" />
+      </template>
+      <Column field="id" header="ID" sortable style="width: 80px" />
+      <Column field="usuario" header="Usuario" sortable />
+      <Column field="nombre" header="Nombre" sortable />
+      <Column field="apellido" header="Apellido" sortable />
+      <Column field="email" header="Email" sortable />
+      <Column field="país" header="País" sortable />
+      <Column field="teléfono" header="Teléfono" sortable />
+      <Column field="rol" header="Rol" sortable>
+        <template #body="{ data }">
+          <span class="px-2 py-1 rounded-full text-xs font-semibold capitalize"
+            :class="data.rol === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'">
+            {{ data.rol }}
+          </span>
+        </template>
+      </Column>
+      <Column header="Acciones" style="min-width: 120px">
+        <template #body="{ data }">
+          <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(data)" />
+          <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(data)" />
+        </template>
+      </Column>
+      <template #empty>
+        <div class="p-4 text-center text-gray-500">No se encontraron usuarios.</div>
+      </template>
+    </DataTable>
     <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación" :style="{ width: '25rem' }">
       <p>¿Estás seguro de que deseas eliminar este registro?</p>
       <div class="flex justify-end gap-2">

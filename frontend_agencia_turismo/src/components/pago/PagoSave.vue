@@ -107,7 +107,7 @@ watch(
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="fechaPago" class="font-semibold w-4">Fecha Pago</label>
-        <InputText id="fechaPago" v-model="pago.fechaPago" type="date" class="flex-auto" />
+        <InputText id="fechaPago" v-model="pago.fechaPago as any" type="date" class="flex-auto" />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="metodoPago" class="font-semibold w-4">Método Pago</label>

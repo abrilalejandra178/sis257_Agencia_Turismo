@@ -13,13 +13,33 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum EstadoReserva {
+  PENDIENTE = 'pendiente',
+  CONFIRMADA = 'confirmada',
+  PAGADA = 'pagada',
+  CANCELADA = 'cancelada',
+  COMPLETADA = 'completada',
+}
+
 @Entity('reservas')
 export class Reserva {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
+  @Column('varchar', { length: 100, name: 'nombre_cliente' })
+  nombreCliente: string;
+
+  @Column('varchar', { length: 20, name: 'telefono_cliente', nullable: true })
+  telefonoCliente?: string;
+
+  @Column('varchar', { length: 100, name: 'email_cliente', nullable: true })
+  emailCliente?: string;
+
   @Column('date', { name: 'fecha_reserva' })
   fechaReserva: Date;
+
+  @Column('date', { name: 'fecha_viaje', nullable: true })
+  fechaViaje: Date;
 
   @Column('int', { name: 'cantidad_personas' })
   cantidadPersonas: number;
@@ -27,16 +47,24 @@ export class Reserva {
   @Column('decimal', { name: 'total', precision: 10, scale: 2 })
   total: number;
 
-  @Column('decimal', { name: 'adelanto', precision: 10, scale: 2 })
+  @Column('decimal', { name: 'adelanto', precision: 10, scale: 2, default: 0 })
   adelanto: number;
 
   @Column('decimal', { name: 'saldo_pendiente', precision: 10, scale: 2 })
   saldoPendiente: number;
 
-  @Column('varchar', { name: 'estado', length: 50 })
-  estado: string;
+  @Column({
+    type: 'enum',
+    enum: EstadoReserva,
+    default: EstadoReserva.PENDIENTE,
+    name: 'estado',
+  })
+  estado: EstadoReserva;
 
-  @Column('int', { name: 'id_usuario' })
+  @Column('varchar', { length: 255, name: 'notas', nullable: true })
+  notas?: string;
+
+  @Column('int', { name: 'id_usuario', nullable: true })
   idUsuario: number;
 
   @Column('int', { name: 'id_paquete' })
@@ -51,7 +79,7 @@ export class Reserva {
   @DeleteDateColumn({ name: 'fecha_eliminacion' })
   fechaEliminacion: Date;
 
-  @ManyToOne(() => Usuario, usuario => usuario.reservas)
+  @ManyToOne(() => Usuario, usuario => usuario.reservas, { nullable: true })
   @JoinColumn({ name: 'id_usuario', referencedColumnName: 'id' })
   usuario: Usuario;
 
@@ -59,7 +87,6 @@ export class Reserva {
   @JoinColumn({ name: 'id_paquete', referencedColumnName: 'id' })
   paquetesTuristicos: PaquetesTuristico;
 
-  @OneToMany(() => Pago, pago => pago.reserva)
+  @OneToMany(() => Pago, pago => pago.reserva, { cascade: true })
   pagos: Pago[];
-
 }

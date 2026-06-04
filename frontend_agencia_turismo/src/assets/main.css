@@ -1,5 +1,71 @@
 /* cleared to use Bootstrap from template */
 
+/* ===== PRIMEVUE DATATABLE THEME NARANJA ===== */
+.p-datatable .p-datatable-thead > tr > th {
+  background: linear-gradient(135deg, #f15d30 0%, #e04a1f 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 0.875rem 1rem !important;
+  border: none !important;
+  font-size: 0.8125rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  transition: background-color 0.15s ease;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem 1rem !important;
+  font-size: 0.875rem !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #fff5f2 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.p-datatable .p-paginator {
+  background: white !important;
+  border-top: 1px solid #f3f4f6 !important;
+  padding: 0.75rem !important;
+}
+
+.p-paginator .p-paginator-page.p-highlight {
+  background: #f15d30 !important;
+  color: white !important;
+  border-color: #f15d30 !important;
+}
+
+.p-paginator .p-paginator-page:not(.p-highlight):hover {
+  background: #fff5f2 !important;
+  color: #f15d30 !important;
+}
+
+.p-paginator .p-dropdown {
+  border-color: #e5e7eb !important;
+}
+
+.p-paginator .p-dropdown:hover {
+  border-color: #f15d30 !important;
+}
+
+/* Botones de acción en tablas */
+.p-button.p-button-text {
+  color: #6b7280 !important;
+}
+
+.p-button.p-button-text:hover {
+  background: #fff5f2 !important;
+  color: #f15d30 !important;
+}
+
 /* Navbar para páginas de administración */
 .navbar-admin {
   background-color: white !important;
@@ -44,30 +110,4 @@ main.admin-content .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-/* Estilos para centrar tablas */
-table {
-  margin: 30px auto;
-  margin-left: 60px;
-  margin-right: 60px;
-  width: calc(100% - 120px);
-  border-collapse: collapse;
-}
-
-table thead tr th {
-  text-align: center;
-  padding: 15px;
-  font-weight: 600;
-  background-color: #f8f9fa;
-}
-
-table tbody tr td {
-  text-align: center;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-}
-
-table tbody tr:hover {
-  background-color: #f5f5f5;
 }

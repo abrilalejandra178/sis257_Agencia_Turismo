@@ -6,7 +6,7 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Public } from 'src/auth/decorators/auth-public.decorator';
 
 @ApiTags('usuarios')
-@ApiBearerAuth('access-token')
+//@ApiBearerAuth('access-token')
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
