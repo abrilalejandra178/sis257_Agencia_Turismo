@@ -4,31 +4,43 @@ import router from '@/router'
 
 const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') as string) : null,
-    token: localStorage.getItem('token') || '',
+    user: sessionStorage.getItem('user') || '',
+    token: sessionStorage.getItem('token') || '',
     returnUrl: '',
   }),
+
   actions: {
-    async login(usuario: string, contraseña: string) {
+    async login(usuario: string, clave: string) {
+      console.log('ENVIANDO LOGIN:', {
+        usuario,
+        clave,
+      })
+
       try {
-        const response = await http.post('auth/login', { usuario, clave: contraseña })
-        const { access_token, token, ...userData } = response.data
+        const response = await http.post('auth/login', {
+          usuario,
+          clave,
+        })
 
-        this.user = userData
-        this.token = access_token || token
+        console.log('RESPUESTA:', response.data)
 
-        localStorage.setItem('user', JSON.stringify(this.user))
-        localStorage.setItem('token', this.token)
+        this.user = response.data.usuario
+        this.token = response.data.access_token
+
+        sessionStorage.setItem('user', this.user || '')
+        sessionStorage.setItem('token', this.token || '')
+
         router.push(this.returnUrl || '/')
       } catch (error) {
+        console.error('ERROR LOGIN:', error)
         throw error
       }
     },
+
     logout() {
-      localStorage.removeItem('user')
-      localStorage.removeItem('token')
+      sessionStorage.clear()
       this.$reset()
-      router.push('/')
+      router.push('/login')
     },
   },
 })

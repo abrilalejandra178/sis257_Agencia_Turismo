@@ -5,7 +5,7 @@ const http: AxiosInstance = Axios.create({
 })
 
 http.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const token = sessionStorage.getItem('token')
   if (config.headers) {
     config.headers['Content-type'] = 'application/json'
     if (token) config.headers['Authorization'] = 'Bearer ' + token
