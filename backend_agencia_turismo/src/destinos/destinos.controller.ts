@@ -11,8 +11,8 @@ export class DestinosController {
   constructor(private readonly destinosService: DestinosService) {}
 
   @Post()
-  create(@Body() createDestinoDto: CreateDestinoDto) {
-    return this.destinosService.create(createDestinoDto);
+    create(@Body() body: any) {
+    return this.destinosService.create(body)
   }
 
   @Get()

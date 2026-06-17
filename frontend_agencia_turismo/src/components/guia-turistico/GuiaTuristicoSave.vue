@@ -77,8 +77,14 @@ async function handleSave() {
         <InputText id="teléfono" v-model="guia.teléfono" class="flex-auto" autocomplete="off" maxlength="8" />
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="idioma" class="font-semibold w-3">Idioma</label>
-        <InputText id="idioma" v-model="guia.idioma" class="flex-auto" autocomplete="off" maxlength="50" />
+        <label for="teléfono" class="font-semibold w-3">Idioma</label>
+        <!-- DESPUÉS idioma con Select: -->
+        <Select
+          id="idioma"
+          v-model="guia.idioma"
+          :options="['Español', 'Inglés', 'Francés', 'Portugués', 'Alemán', 'Italiano', 'Quechua', 'Aymara']"
+          class="flex-auto"
+        />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="experiencia" class="font-semibold w-3">Experiencia</label>
@@ -86,7 +92,14 @@ async function handleSave() {
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="calificación" class="font-semibold w-3">Calificación</label>
-        <InputNumber id="calificación" v-model="guia.calificación" class="flex-auto" :min="0" :max="5" :minFractionDigits="1" :maxFractionDigits="1" />
+        <!-- DESPUÉS calificación más cerrada (solo enteros 1-5): -->
+        <Select
+          id="calificación"
+          v-model="guia.calificación"
+          :options="[1, 2, 3, 4, 5]"
+          class="flex-auto"
+          placeholder="Calificación (1-5)"
+        />
       </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />

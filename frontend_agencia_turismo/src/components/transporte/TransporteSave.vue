@@ -63,11 +63,21 @@ async function handleSave() {
     >
       <div class="flex items-center gap-4 mb-4">
         <label for="tipo" class="font-semibold w-3">Tipo</label>
-        <InputText id="tipo" v-model="transporte.tipo" class="flex-auto" autocomplete="off" maxlength="50" autofocus />
+        <Select
+          id="tipo"
+          v-model="transporte.tipo"
+          :options="['Bus', 'Minibús', 'Auto', 'Camioneta', 'Bicicleta', 'Motocicleta', 'Avión', 'Barco']"
+          class="flex-auto"
+        />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="empresa" class="font-semibold w-3">Empresa</label>
-        <InputText id="empresa" v-model="transporte.empresa" class="flex-auto" autocomplete="off" maxlength="500" />
+        <Select
+          id="empresa"
+          v-model="transporte.empresa"
+          :options="['Trans Copacabana', 'Bolivia Bus', 'Flota Yungas', 'Trans Potosí', 'Turbus', 'Otra']"
+          class="flex-auto"
+        />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="descripcion" class="font-semibold w-3">Descripción</label>

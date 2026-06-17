@@ -26,10 +26,12 @@ const dialogVisible = computed({
 })
 
 const destino = ref<Destino>({ ...props.destino })
+const imagenesTexto = ref('')
+
 watch(
   () => props.destino,
   (newVal) => {
-    destino.value = { ...newVal }
+    destino.value = {...newVal }
   },
 )
 
@@ -39,15 +41,20 @@ async function handleSave() {
       nombre: destino.value.nombre,
       descripción: destino.value.descripción,
       ubicación: destino.value.ubicación,
-      imagen: destino.value.imagen,
+      imagenes: imagenesTexto.value
+        .split('\n')
+        .map((url) => url.trim())
+        .filter((url) => url !== '')
+        .map((url) => ({ urlImagen: url })),
     }
+
     if (props.modoEdicion) {
       await http.patch(`${ENDPOINT}/${destino.value.id}`, body)
     } else {
       await http.post(ENDPOINT, body)
     }
+
     emit('guardar')
-    destino.value = {} as Destino
     dialogVisible.value = false
   } catch (error: any) {
     alert(error?.response?.data?.message)
@@ -75,8 +82,8 @@ async function handleSave() {
         <InputText id="ubicación" v-model="destino.ubicación" class="flex-auto" autocomplete="off" />
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="imagen" class="font-semibold w-3">Imagen (URL)</label>
-        <InputText id="imagen" v-model="destino.imagen" class="flex-auto" autocomplete="off" maxlength="1000" />
+      <label class="font-semibold w-3">Imágenes</label>
+      <Textarea v-model="imagenesTexto" placeholder="Una URL por línea" rows="4" class="flex-auto"/>
       </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />

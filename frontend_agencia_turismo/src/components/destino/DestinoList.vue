@@ -70,10 +70,15 @@ defineExpose({ obtenerLista })
       <Column field="nombre" header="Nombre" sortable />
       <Column field="descripción" header="Descripción" sortable />
       <Column field="ubicación" header="Ubicación" sortable />
-      <Column field="imagen" header="Imagen" sortable>
-        <template #body="{ data }">
-          <img v-if="data.imagen" :src="data.imagen" alt="Destino" style="width:80px;height:60px;object-fit:cover;border-radius:4px;" />
-          <span v-else class="text-gray-400">—</span>
+      <Column header="Imágenes"><template #body="{ data }">
+        <div class="flex gap-1">
+          <img
+            v-for="(img, i) in data.imagenes"
+            :key="i"
+            :src="img.urlImagen"
+            style="width:50px;height:40px;object-fit:cover"
+          />
+        </div>
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">

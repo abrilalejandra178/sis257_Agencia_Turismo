@@ -1,7 +1,7 @@
 export interface Destino {
-  id: number
+  id?: number
   nombre: string
   descripción: string
   ubicación: string
-  imagen: string
+  imagenes: { urlImagen: string }[]
 }

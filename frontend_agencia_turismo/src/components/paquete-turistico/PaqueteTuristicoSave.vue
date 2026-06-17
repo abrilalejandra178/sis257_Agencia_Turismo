@@ -135,16 +135,22 @@ watch(
         />
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="incluyeHospedaje" class="font-semibold w-4">Hospedaje</label>
-        <InputText id="incluyeHospedaje" v-model="paquete.incluyeHospedaje" class="flex-auto" />
+        <label for="incluyeAlimentación" class="font-semibold w-4">Incluye Alimentación</label>
+      <Select
+          id="incluyeAlimentación"
+           v-model="paquete.incluyeAlimentación"
+          :options="['Desayuno', 'Almuerzo', 'Cena', 'Completa', 'No incluye']"
+           class="flex-auto"
+      />
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="incluyeAlimentación" class="font-semibold w-4">Alimentación</label>
-        <InputText
-          id="incluyeAlimentación"
-          v-model="paquete.incluyeAlimentación"
-          class="flex-auto"
-        />
+        <label for="incluyeHospedaje" class="font-semibold w-4">Incluye Hospedaje</label>
+      <Select
+         id="incluyeHospedaje"
+        v-model="paquete.incluyeHospedaje"
+        :options="['Hotel 1★', 'Hotel 2★', 'Hotel 3★', 'Hostal', 'Camping', 'No incluye']"
+        class="flex-auto"
+      />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="destino" class="font-semibold w-4">Destino</label>

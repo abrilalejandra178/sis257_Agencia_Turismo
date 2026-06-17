@@ -18,9 +18,13 @@ export class CreateDestinoDto {
   @IsString({ message: 'La ubicación debe ser una cadena de texto' })
   readonly ubicación: string;
 
-  @ApiProperty({ example: 'https://ejemplo.com/salar-de-uyuni.jpg' })
-  @IsNotEmpty({ message: 'La imagen es obligatoria' })
-  @IsString({ message: 'La imagen debe ser una cadena de texto' })
-  @MaxLength(1000, { message: 'La imagen no puede tener más de 1000 caracteres' })
-  readonly imagen: string;
+  @ApiProperty({
+    type: [Object],
+    example: [
+    {
+      urlImagen: 'https://ejemplo.com/salar-de-uyuni.jpg',
+    },
+    ],
+  })
+  readonly imagenes: { urlImagen: string }[];
 }

@@ -17,6 +17,14 @@ const exito = ref('')
 const metodoPago = ref('efectivo')
 const referenciaPago = ref('')
 const idVentaCompletada = ref<number | null>(null)
+// Agrega estas variables nuevas al script:
+const montoRecibido = ref<number>(0)
+const cambio = computed(() => {
+  if (metodoPago.value === 'efectivo' && montoRecibido.value > 0) {
+    return Math.max(0, montoRecibido.value - totalTicket.value)
+  }
+  return 0
+})
 
 // Fecha de viaje
 const fechaViaje = ref('')
@@ -105,24 +113,28 @@ function irPaso(nuevoPaso: typeof paso.value) {
   error.value = ''
 }
 
+// En la función crearVenta(), ANTES de llamar a ventasStore.crearVenta():
 async function crearVenta() {
   if (!ventasStore.cliente.nombre.trim()) {
     error.value = 'Ingrese el nombre del cliente'
     return
   }
 
+  // ✅ NUEVO: validar fecha de viaje no pasada
+  if (fechaViaje.value) {
+    const hoy = new Date()
+    hoy.setHours(0, 0, 0, 0)
+    const fViaje = new Date(fechaViaje.value)
+    if (fViaje < hoy) {
+      error.value = 'La fecha de viaje no puede ser una fecha pasada'
+      setTimeout(() => (error.value = ''), 3000)
+      return
+    }
+  }
+
   cargando.value = true
   error.value = ''
-
-  try {
-    const venta = await ventasStore.crearVenta(fechaViaje.value)
-    idVentaCompletada.value = venta.id
-    paso.value = 'pago'
-  } catch (err: any) {
-    error.value = err.response?.data?.message || err.message || 'Error creando la venta'
-  } finally {
-    cargando.value = false
-  }
+  // ... resto igual
 }
 
 async function confirmarPago() {
