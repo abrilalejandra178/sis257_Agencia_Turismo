@@ -87,7 +87,11 @@ defineExpose({ obtenerLista })
       <Column field="experiencia" header="Experiencia" sortable />
       <Column field="calificacion" header="Calificación" sortable>
         <template #body="{ data }">
+<<<<<<< HEAD
           <Rating :modelValue="data.calificacion" :stars="5" @update:modelValue="(valor) => actualizarCalificacion(data, valor)" />
+=======
+          <Rating :modelValue="data.calificación" :stars="5" readonly />
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">

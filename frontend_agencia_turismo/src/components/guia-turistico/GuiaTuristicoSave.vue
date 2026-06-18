@@ -93,7 +93,11 @@ async function handleSave() {
       <!-- CAMBIO (requisito #4): clasificación del guía con estrellas del 1 al 5 -->
       <div class="flex items-center gap-4 mb-4">
         <label for="calificación" class="font-semibold w-3">Calificación</label>
+<<<<<<< HEAD
         <Rating id="calificación" v-model="guia.calificacion" :stars="5" />
+=======
+        <Rating id="calificación" v-model="guia.calificación" :stars="5" />
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
       </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />
