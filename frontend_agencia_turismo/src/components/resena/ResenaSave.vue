@@ -3,12 +3,11 @@ import type { Resena } from '@/models/resena'
 import type { Usuario } from '@/models/usuario'
 import type { PaqueteTuristico } from '@/models/paquete-turistico'
 import http from '@/plugins/axios'
-import { InputNumber, Select } from 'primevue'
-import Button from 'primevue/button'
+import { DatePicker, InputNumber, Select } from 'primevue'
 import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
 import { Textarea } from 'primevue'
 import { computed, ref, watch } from 'vue'
+import { getApiErrorMessage } from '@/utils/error'
 
 const ENDPOINT = 'resenas'
 const props = defineProps({
@@ -31,6 +30,13 @@ const dialogVisible = computed({
 const usuarios = ref<Usuario[]>([])
 const paquetes = ref<PaqueteTuristico[]>([])
 const resena = ref<Resena>({ ...props.resena })
+
+function toDate(value: string | Date | undefined): Date {
+  if (value instanceof Date) return value
+  const fechaStr = value ?? ''
+  const [y = 0, m = 1, d = 1] = (fechaStr.split('T')[0] || '').split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
 
 watch(
   () => props.resena,
@@ -61,8 +67,8 @@ async function handleSave() {
     emit('guardar')
     resena.value = {} as Resena
     dialogVisible.value = false
-  } catch (error: any) {
-    alert(error?.response?.data?.message)
+  } catch (error: unknown) {
+    alert(getApiErrorMessage(error, 'Error guardando reseña'))
   }
 }
 
@@ -72,9 +78,9 @@ watch(
     if (nuevoValor) {
       await cargarDatos()
       if (props.resena?.id) {
-        resena.value = { ...props.resena }
+        resena.value = { ...props.resena, fecha: toDate(props.resena.fecha) }
       } else {
-        resena.value = {} as Resena
+        resena.value = { fecha: new Date() } as Resena
       }
     }
   },
@@ -88,62 +94,64 @@ watch(
       :header="(props.modoEdicion ? 'Editar' : 'Crear') + ' Reseña'"
       style="width: 30rem"
     >
-      <div class="flex items-center gap-4 mb-4">
-        <label for="usuario" class="font-semibold w-4">Usuario</label>
-        <Select
-          id="usuario"
-          v-model="resena.idUsuario"
-          :options="usuarios"
-          optionLabel="nombre"
-          optionValue="id"
-          class="flex-auto"
-        />
+      <div class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="usuario" class="block font-bold mb-2">Usuario *</label>
+          <Select
+            id="usuario"
+            v-model="resena.idUsuario"
+            :options="usuarios"
+            optionLabel="nombre"
+            optionValue="id"
+            filter
+            class="w-full"
+          />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="paquete" class="block font-bold mb-2">Paquete *</label>
+          <Select
+            id="paquete"
+            v-model="resena.idPaquete"
+            :options="paquetes"
+            optionLabel="nombre"
+            optionValue="id"
+            filter
+            class="w-full"
+          />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="calificacion" class="block font-bold mb-2">Calificación *</label>
+          <InputNumber
+            id="calificacion"
+            v-model="resena.calificacion"
+            class="w-full"
+            :min="1"
+            :max="5"
+            showButtons
+          />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="fecha" class="block font-bold mb-2">Fecha *</label>
+          <DatePicker id="fecha" v-model="resena.fecha" class="w-full" dateFormat="dd/mm/yy" />
+        </div>
+        <div class="field col-12">
+          <label for="comentario" class="block font-bold mb-2">Comentario *</label>
+          <Textarea
+            id="comentario"
+            v-model="resena.comentario"
+            class="w-full"
+            rows="3"
+            maxlength="500"
+          />
+        </div>
       </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="paquete" class="font-semibold w-4">Paquete</label>
-        <Select
-          id="paquete"
-          v-model="resena.idPaquete"
-          :options="paquetes"
-          optionLabel="nombre"
-          optionValue="id"
-          class="flex-auto"
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="comentario" class="font-semibold w-4">Comentario</label>
-        <Textarea
-          id="comentario"
-          v-model="resena.comentario"
-          class="flex-auto"
-          rows="3"
-          maxlength="500"
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="calificacion" class="font-semibold w-4">Calificación</label>
-        <InputNumber
-          id="calificacion"
-          v-model="resena.calificacion"
-          class="flex-auto"
-          :min="1"
-          :max="5"
-          showButtons
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="fecha" class="font-semibold w-4">Fecha</label>
-        <InputText id="fecha" v-model="resena.fecha as any" type="date" class="flex-auto" />
-      </div>
-      <div class="flex justify-end gap-2">
-        <Button
-          type="button"
-          label="Cancelar"
-          icon="pi pi-times"
-          severity="secondary"
-          @click="dialogVisible = false"
-        />
-        <Button type="button" label="Guardar" icon="pi pi-save" @click="handleSave" />
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" class="app-btn app-btn-secondary" @click="dialogVisible = false">
+          <i class="pi pi-times"></i> Cancelar
+        </button>
+        <button type="button" class="app-btn app-btn-primary" @click="handleSave">
+          <i class="pi pi-save"></i> Guardar
+        </button>
       </div>
     </Dialog>
   </div>

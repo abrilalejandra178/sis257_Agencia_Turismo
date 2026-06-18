@@ -48,7 +48,7 @@ defineExpose({ obtenerLista })
 
 <template>
   <div>
-    <div class="mb-4">
+    <div class="search-box">
       <InputGroup>
         <InputGroupAddon><i class="pi pi-search"></i></InputGroupAddon>
         <InputText v-model="busqueda" type="text" placeholder="Buscar por nombre, usuario o email" />
@@ -84,8 +84,12 @@ defineExpose({ obtenerLista })
       </Column>
       <Column header="Acciones" style="min-width: 120px">
         <template #body="{ data }">
-          <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(data)" />
-          <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(data)" />
+          <button class="app-btn app-btn-secondary" title="Editar" @click="emitirEdicion(data)">
+            <i class="pi pi-pencil"></i>
+          </button>
+          <button class="app-btn app-btn-danger" title="Eliminar" @click="mostrarEliminarConfirm(data)">
+            <i class="pi pi-trash"></i>
+          </button>
         </template>
       </Column>
       <template #empty>
@@ -95,8 +99,8 @@ defineExpose({ obtenerLista })
     <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación" :style="{ width: '25rem' }">
       <p>¿Estás seguro de que deseas eliminar este registro?</p>
       <div class="flex justify-end gap-2">
-        <Button type="button" label="Cancelar" severity="secondary" @click="mostrarConfirmDialog = false" />
-        <Button type="button" label="Eliminar" @click="eliminar" />
+        <button type="button" class="app-btn app-btn-secondary" @click="mostrarConfirmDialog = false">Cancelar</button>
+        <button type="button" class="app-btn app-btn-danger" @click="eliminar">Eliminar</button>
       </div>
     </Dialog>
   </div>

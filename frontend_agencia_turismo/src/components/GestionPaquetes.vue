@@ -17,7 +17,7 @@ async function cargarPaquetes() {
   error.value = ''
   try {
     await paquetesStore.obtenerPaquetes()
-  } catch (err) {
+  } catch {
     error.value = 'Error cargando paquetes'
   } finally {
     cargando.value = false

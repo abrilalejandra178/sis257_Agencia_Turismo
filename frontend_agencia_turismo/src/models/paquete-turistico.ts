@@ -1,4 +1,5 @@
 import type { Destino } from './destino'
+import type { Extra } from './extra'
 import type { GuiaTuristico } from './guia-turistico'
 import type { Transporte } from './transporte'
 
@@ -17,4 +18,6 @@ export interface PaqueteTuristico {
   destino: Destino
   guia: GuiaTuristico
   transporte: Transporte
+  extras?: Extra[]
+  idsExtras?: number[]
 }

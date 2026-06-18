@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { GuiaTuristico } from '@/models/guia-turistico'
 import http from '@/plugins/axios'
-import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import { Rating, Select, Textarea } from 'primevue'
+import { MultiSelect, Rating, Textarea } from 'primevue'
 import { computed, ref, watch } from 'vue'
+import { getApiErrorMessage } from '@/utils/error'
 
 const ENDPOINT = 'guias-turisticos'
 const props = defineProps({
@@ -51,53 +51,51 @@ async function handleSave() {
     emit('guardar')
     guia.value = {} as GuiaTuristico
     dialogVisible.value = false
-  } catch (error: any) {
-    alert(error?.response?.data?.message)
+  } catch (error: unknown) {
+    alert(getApiErrorMessage(error, 'Error guardando guía turístico'))
   }
 }
 </script>
 
 <template>
   <div class="card flex justify-center">
-    <Dialog
-      v-model:visible="dialogVisible"
-      :header="(props.modoEdicion ? 'Editar' : 'Crear') + ' Guía Turístico'"
-      style="width: 28rem"
-    >
-      <div class="flex items-center gap-4 mb-4">
-        <label for="nombre" class="font-semibold w-3">Nombre</label>
-        <InputText id="nombre" v-model="guia.nombre" class="flex-auto" autocomplete="off" maxlength="50" autofocus />
+    <Dialog v-model:visible="dialogVisible" :header="(props.modoEdicion ? 'Editar' : 'Crear') + ' Guía Turístico'"
+      style="width: 28rem">
+      <div class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="nombre" class="block font-bold mb-2">Nombre *</label>
+          <InputText id="nombre" v-model="guia.nombre" class="w-full" autocomplete="off" maxlength="50" autofocus />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="apellido" class="block font-bold mb-2">Apellido *</label>
+          <InputText id="apellido" v-model="guia.apellido" class="w-full" autocomplete="off" maxlength="50" />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="teléfono" class="block font-bold mb-2">Teléfono</label>
+          <InputText id="teléfono" v-model="guia.teléfono" class="w-full" autocomplete="off" maxlength="8" />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="idioma" class="block font-bold mb-2">Idioma</label>
+          <MultiSelect id="idioma" v-model="guia.idioma"
+            :options="['Español', 'Inglés', 'Francés', 'Alemán', 'Portugués', 'Quechua', 'Aymara', 'Italiano', 'Chino']"
+            filter class="w-full" placeholder="Seleccione idiomas" display="chip" />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="calificación" class="block font-bold mb-2">Calificación</label>
+          <Rating id="calificación" v-model="guia.calificación" :stars="5" :cancel="false" />
+        </div>
+        <div class="field col-12">
+          <label for="experiencia" class="block font-bold mb-2">Experiencia</label>
+          <Textarea id="experiencia" v-model="guia.experiencia" class="w-full" rows="3" maxlength="1000" />
+        </div>
       </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="apellido" class="font-semibold w-3">Apellido</label>
-        <InputText id="apellido" v-model="guia.apellido" class="flex-auto" autocomplete="off" maxlength="50" />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="teléfono" class="font-semibold w-3">Teléfono</label>
-        <InputText id="teléfono" v-model="guia.teléfono" class="flex-auto" autocomplete="off" maxlength="8" />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="teléfono" class="font-semibold w-3">Idioma</label>
-        <!-- DESPUÉS idioma con Select: -->
-        <Select
-          id="idioma"
-          v-model="guia.idioma"
-          :options="['Español', 'Inglés', 'Francés', 'Portugués', 'Alemán', 'Italiano', 'Quechua', 'Aymara']"
-          class="flex-auto"
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="experiencia" class="font-semibold w-3">Experiencia</label>
-        <Textarea id="experiencia" v-model="guia.experiencia" class="flex-auto" rows="3" maxlength="1000" />
-      </div>
-      <!-- CAMBIO (requisito #4): clasificación del guía con estrellas del 1 al 5 -->
-      <div class="flex items-center gap-4 mb-4">
-        <label for="calificación" class="font-semibold w-3">Calificación</label>
-        <Rating id="calificación" v-model="guia.calificación" :stars="5" />
-      </div>
-      <div class="flex justify-end gap-2">
-        <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />
-        <Button type="button" label="Guardar" icon="pi pi-save" @click="handleSave" />
+      <div class="flex justify-content-end gap-2 mt-4">
+        <button type="button" class="app-btn app-btn-secondary" @click="dialogVisible = false">
+          <i class="pi pi-times"></i> Cancelar
+        </button>
+        <button type="button" class="app-btn app-btn-primary" @click="handleSave">
+          <i class="pi pi-save"></i> Guardar
+        </button>
       </div>
     </Dialog>
   </div>

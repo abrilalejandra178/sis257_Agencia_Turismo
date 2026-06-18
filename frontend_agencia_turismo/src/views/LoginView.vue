@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/index'
+import { getApiErrorMessage } from '@/utils/error'
 
 const router = useRouter()
 const usuario = ref('')
@@ -22,8 +23,8 @@ async function onSubmit() {
     const authStore = useAuthStore()
     await authStore.login(usuario.value, contraseña.value)
     router.push('/dashboard')
-  } catch (err: any) {
-    error.value = err.response?.data?.message || 'Usuario y/o contraseña incorrectos'
+  } catch (err: unknown) {
+    error.value = getApiErrorMessage(err, 'Usuario y/o contraseña incorrectos')
   } finally {
     cargando.value = false
   }

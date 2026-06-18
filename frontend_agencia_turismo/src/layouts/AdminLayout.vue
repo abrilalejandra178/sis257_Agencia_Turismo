@@ -71,6 +71,14 @@ const menuSections = [
     title: 'OPERACIONES',
     items: [
       { label: 'Reseñas', icon: 'pi pi-star', route: '/resenas' },
+      { label: 'Itinerarios', icon: 'pi pi-calendar', route: '/itinerarios' },
+      { label: 'Extras', icon: 'pi pi-plus-circle', route: '/extras' },
+    ],
+  },
+  {
+    title: 'CLIENTES',
+    items: [
+      { label: 'Clientes', icon: 'pi pi-id-card', route: '/clientes' },
     ],
   },
   {
@@ -584,5 +592,57 @@ function isActive(ruta: string): boolean {
   .main-content {
     padding: 1rem;
   }
+}
+</style>
+
+<style>
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.app-btn-primary {
+  background: linear-gradient(135deg, #f15d30 0%, #e04a1f 100%);
+  color: white;
+}
+.app-btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(241, 93, 48, 0.3);
+}
+.app-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+.app-btn-secondary:hover {
+  background: #e5e7eb;
+}
+.app-btn-danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.app-btn-danger:hover {
+  background: #fee2e2;
+}
+.search-box {
+  margin-bottom: 1rem;
 }
 </style>

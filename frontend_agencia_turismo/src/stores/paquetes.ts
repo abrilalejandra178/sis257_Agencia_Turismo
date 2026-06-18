@@ -1,6 +1,23 @@
 import { defineStore } from 'pinia'
 import http from '@/plugins/axios'
 
+export interface DestinoResumen {
+  id: number
+  nombre: string
+}
+
+export interface GuiaResumen {
+  id: number
+  nombre: string
+  apellido: string
+}
+
+export interface TransporteResumen {
+  id: number
+  tipo: string
+  empresa: string
+}
+
 export interface Paquete {
   id: number
   nombre: string
@@ -10,9 +27,9 @@ export interface Paquete {
   capacidadMaxima: number
   incluyeHospedaje: string
   incluyeAlimentacion: string
-  destino?: any
-  guia?: any
-  transporte?: any
+  destino?: DestinoResumen
+  guia?: GuiaResumen
+  transporte?: TransporteResumen
 }
 
 export const usePaquetesStore = defineStore('paquetes', {

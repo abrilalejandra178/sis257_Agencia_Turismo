@@ -73,6 +73,24 @@ const router = createRouter({
       component: () => import('../views/UsuarioView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/clientes',
+      name: 'clientes',
+      component: () => import('../views/ClienteView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/itinerarios',
+      name: 'itinerarios',
+      component: () => import('../views/ItinerarioView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/extras',
+      name: 'extras',
+      component: () => import('../views/ExtraView.vue'),
+      meta: { requiresAuth: true },
+    },
     // Ruta 404
     {
       path: '/:pathMatch(.*)*',

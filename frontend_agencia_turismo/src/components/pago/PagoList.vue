@@ -47,7 +47,7 @@ defineExpose({ obtenerLista })
 
 <template>
   <div>
-    <div class="col-9 pl-0 mt-3">
+    <div class="search-box">
       <InputGroup>
         <InputGroupAddon><i class="pi pi-search"></i></InputGroupAddon>
         <InputText
@@ -74,27 +74,17 @@ defineExpose({ obtenerLista })
       <Column field="monto" header="Monto" sortable>
         <template #body="{ data }">{{ Number(data.monto).toFixed(2) }}</template>
       </Column>
-      <!-- CAMBIO (requisito #5): se muestra el cambio/vuelto entregado al cliente -->
-      <Column field="cambio" header="Cambio" sortable>
-        <template #body="{ data }">
-          <span v-if="Number(data.cambio) > 0" class="text-green-600 font-semibold">
-            Bs {{ Number(data.cambio).toFixed(2) }}
-          </span>
-          <span v-else class="text-gray-400">—</span>
-        </template>
-      </Column>
       <Column field="fechaPago" header="Fecha Pago" sortable />
       <Column field="metodoPago" header="Método Pago" sortable />
       <Column field="estadoPago" header="Estado Pago" sortable />
       <Column header="Acciones" style="min-width: 120px">
         <template #body="{ data }">
-          <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(data)" />
-          <Button
-            icon="pi pi-trash"
-            aria-label="Eliminar"
-            text
-            @click="mostrarEliminarConfirm(data)"
-          />
+          <button class="app-btn app-btn-secondary" title="Editar" @click="emitirEdicion(data)">
+            <i class="pi pi-pencil"></i>
+          </button>
+          <button class="app-btn app-btn-danger" title="Eliminar" @click="mostrarEliminarConfirm(data)">
+            <i class="pi pi-trash"></i>
+          </button>
         </template>
       </Column>
     </DataTable>
@@ -105,13 +95,8 @@ defineExpose({ obtenerLista })
     >
       <p>¿Estás seguro de que deseas eliminar este registro?</p>
       <div class="flex justify-end gap-2">
-        <Button
-          type="button"
-          label="Cancelar"
-          severity="secondary"
-          @click="mostrarConfirmDialog = false"
-        />
-        <Button type="button" label="Eliminar" @click="eliminar" />
+        <button type="button" class="app-btn app-btn-secondary" @click="mostrarConfirmDialog = false">Cancelar</button>
+        <button type="button" class="app-btn app-btn-danger" @click="eliminar">Eliminar</button>
       </div>
     </Dialog>
   </div>

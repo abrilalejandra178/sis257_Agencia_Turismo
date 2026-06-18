@@ -25,18 +25,6 @@ function mostrarEliminarConfirm(guia: GuiaTuristico) {
   mostrarConfirmDialog.value = true
 }
 
-// Permite calificar directo desde la tabla, sin abrir el diálogo de edición.
-async function actualizarCalificacion(guia: GuiaTuristico, nuevaCalificacion: number) {
-  const calificacionAnterior = guia.calificación
-  guia.calificación = nuevaCalificacion // actualiza la vista al toque
-  try {
-    await http.patch(`${ENDPOINT}/${guia.id}`, { calificación: nuevaCalificacion })
-  } catch (error: any) {
-    guia.calificación = calificacionAnterior // revierte si el guardado falla
-    alert(error?.response?.data?.message)
-  }
-}
-
 async function eliminar() {
   await http.delete(`${ENDPOINT}/${guiaDelete.value?.id}`)
   obtenerLista()
@@ -48,7 +36,7 @@ const guiasFiltrados = computed(() => {
     (guia) =>
       guia.nombre.toLowerCase().includes(busqueda.value.toLowerCase()) ||
       guia.apellido.toLowerCase().includes(busqueda.value.toLowerCase()) ||
-      guia.idioma.toLowerCase().includes(busqueda.value.toLowerCase()),
+      guia.idioma?.some((i: string) => i.toLowerCase().includes(busqueda.value.toLowerCase())),
   )
 })
 
@@ -60,7 +48,7 @@ defineExpose({ obtenerLista })
 
 <template>
   <div>
-    <div class="mb-4">
+    <div class="search-box">
       <InputGroup>
         <InputGroupAddon><i class="pi pi-search"></i></InputGroupAddon>
         <InputText v-model="busqueda" type="text" placeholder="Buscar por nombre, apellido o idioma" />
@@ -83,17 +71,27 @@ defineExpose({ obtenerLista })
       <Column field="nombre" header="Nombre" sortable />
       <Column field="apellido" header="Apellido" sortable />
       <Column field="teléfono" header="Teléfono" sortable />
-      <Column field="idioma" header="Idioma" sortable />
+      <Column field="idioma" header="Idioma" sortable>
+        <template #body="{ data }">
+          <span v-for="lang in data.idioma" :key="lang" class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1">
+            {{ lang }}
+          </span>
+        </template>
+      </Column>
       <Column field="experiencia" header="Experiencia" sortable />
       <Column field="calificación" header="Calificación" sortable>
         <template #body="{ data }">
-          <Rating :modelValue="data.calificación" :stars="5" @update:modelValue="(valor) => actualizarCalificacion(data, valor)" />
+          <Rating v-model="data.calificación" :stars="5" :cancel="false" readonly />
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">
         <template #body="{ data }">
-          <Button icon="pi pi-pencil" aria-label="Editar" text @click="emitirEdicion(data)" />
-          <Button icon="pi pi-trash" aria-label="Eliminar" text @click="mostrarEliminarConfirm(data)" />
+          <button class="app-btn app-btn-secondary" title="Editar" @click="emitirEdicion(data)">
+            <i class="pi pi-pencil"></i>
+          </button>
+          <button class="app-btn app-btn-danger" title="Eliminar" @click="mostrarEliminarConfirm(data)">
+            <i class="pi pi-trash"></i>
+          </button>
         </template>
       </Column>
       <template #empty>
@@ -103,8 +101,8 @@ defineExpose({ obtenerLista })
     <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación" :style="{ width: '25rem' }">
       <p>¿Estás seguro de que deseas eliminar este registro?</p>
       <div class="flex justify-end gap-2">
-        <Button type="button" label="Cancelar" severity="secondary" @click="mostrarConfirmDialog = false" />
-        <Button type="button" label="Eliminar" @click="eliminar" />
+        <button type="button" class="app-btn app-btn-secondary" @click="mostrarConfirmDialog = false">Cancelar</button>
+        <button type="button" class="app-btn app-btn-danger" @click="eliminar">Eliminar</button>
       </div>
     </Dialog>
   </div>

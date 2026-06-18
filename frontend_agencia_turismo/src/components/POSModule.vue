@@ -1,13 +1,94 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useVentasStore } from '@/stores/ventas'
 import { usePaquetesStore } from '@/stores/paquetes'
+import type { Paquete } from '@/stores/paquetes'
+import http from '@/plugins/axios'
+import { AutoComplete, Button, DatePicker, Dialog } from 'primevue'
+import ClienteSave from '@/components/cliente/ClienteSave.vue'
+import type { Cliente } from '@/models/cliente'
+import { getApiErrorMessage } from '@/utils/error'
+
+interface ClienteSugerido {
+  id: number
+  nombre: string
+  apellido: string
+  email?: string
+  telefono?: string
+  label: string
+}
+
+interface AutoCompleteCompleteEvent {
+  query: string
+}
+
+interface AutoCompleteItemSelectEvent {
+  value: ClienteSugerido
+}
 
 const ventasStore = useVentasStore()
 const paquetesStore = usePaquetesStore()
 
+// Cliente autocomplete
+const sugerenciasClientes = ref<ClienteSugerido[]>([])
+const clienteSeleccionado = ref<ClienteSugerido | null>(null)
+
+async function buscarCliente(event: AutoCompleteCompleteEvent) {
+  const query = event.query
+  queryCliente.value = query
+  if (!query || query.length < 2) {
+    sugerenciasClientes.value = []
+    return
+  }
+  try {
+    const response = await http.get('/clientes', { params: { search: query } })
+    sugerenciasClientes.value = (response.data as ClienteSugerido[]).map((c) => ({
+      ...c,
+      label: `${c.nombre} ${c.apellido} — ${c.email}${c.telefono ? ' — ' + c.telefono : ''}`,
+    }))
+  } catch {
+    sugerenciasClientes.value = []
+  }
+}
+
+function seleccionarCliente(event: AutoCompleteItemSelectEvent) {
+  const c = event.value
+  clienteSeleccionado.value = c || null
+  if (c && c.id) {
+    ventasStore.cliente.nombre = `${c.nombre} ${c.apellido}`
+    ventasStore.cliente.telefono = c.telefono || ''
+    ventasStore.cliente.email = c.email || ''
+    ventasStore.cliente.id = c.id
+  }
+}
+
+function abrirCrearCliente() {
+  mostrarDialogCliente.value = true
+}
+
+function onClienteGuardado(clienteCreado: Cliente) {
+  mostrarDialogCliente.value = false
+  if (clienteCreado) {
+    clienteSeleccionado.value = {
+      id: clienteCreado.id,
+      nombre: clienteCreado.nombre,
+      apellido: clienteCreado.apellido,
+      email: clienteCreado.email,
+      telefono: clienteCreado.telefono,
+      label: `${clienteCreado.nombre} ${clienteCreado.apellido} — ${clienteCreado.email}${clienteCreado.telefono ? ' — ' + clienteCreado.telefono : ''}`,
+    }
+    ventasStore.cliente.nombre = `${clienteCreado.nombre} ${clienteCreado.apellido}`
+    ventasStore.cliente.telefono = clienteCreado.telefono || ''
+    ventasStore.cliente.email = clienteCreado.email || ''
+    ventasStore.cliente.id = clienteCreado.id
+    queryCliente.value = `${clienteCreado.nombre} ${clienteCreado.apellido}`
+    sugerenciasClientes.value = []
+  }
+}
+
 const paso = ref<'catalogo' | 'cliente' | 'pago' | 'confirmacion'>('catalogo')
 const busqueda = ref('')
+const mostrarResumenDialog = ref(false)
 const filtroDestino = ref('')
 const cargando = ref(false)
 const error = ref('')
@@ -18,23 +99,19 @@ const metodoPago = ref('efectivo')
 const referenciaPago = ref('')
 const idVentaCompletada = ref<number | null>(null)
 
-// CAMBIO (requisito #5): monto que entrega el cliente en efectivo, para
-// calcular el cambio/vuelto cuando paga con un monto más elevado.
-const montoRecibido = ref<number | null>(null)
-
-// CAMBIO (requisito #6): no se permite elegir una fecha de viaje pasada
-const fechaMinima = new Date().toISOString().slice(0, 10)
-
 // Fecha de viaje
-const fechaViaje = ref('')
+const fechaViaje = ref<Date | null>(null)
 
-// CAMBIO (requisito #7): resultado de la búsqueda de cliente frecuente
-const buscandoCliente = ref(false)
-const resultadoCliente = ref<{ totalReservas: number; esClienteFrecuente: boolean } | null>(null)
+// Crear cliente desde POS
+const mostrarDialogCliente = ref(false)
+const queryCliente = ref('')
+
+// Cambio en efectivo
+const montoRecibido = ref<number>(0)
 
 const destinosUnicos = computed(() => {
   const destinos = new Set<string>()
-  paquetesStore.paquetes.forEach((p: any) => {
+  paquetesStore.paquetes.forEach((p: Paquete) => {
     if (p.destino?.nombre) destinos.add(p.destino.nombre)
   })
   return Array.from(destinos)
@@ -44,55 +121,28 @@ const paquetesFiltrados = computed(() => {
   let result = paquetesStore.paquetes
   if (busqueda.value) {
     const q = busqueda.value.toLowerCase()
-    result = result.filter((p: any) =>
+    result = result.filter((p: Paquete) =>
       p.nombre?.toLowerCase().includes(q) ||
-      p.descripcion?.toLowerCase().includes(q)
+      p.descripción?.toLowerCase().includes(q)
     )
   }
   if (filtroDestino.value) {
-    result = result.filter((p: any) => p.destino?.nombre === filtroDestino.value)
+    result = result.filter((p: Paquete) => p.destino?.nombre === filtroDestino.value)
   }
   return result
 })
 
 const totalTicket = computed(() => ventasStore.subtotal)
 
-// CAMBIO (requisito #5): cambio/vuelto a entregar si el cliente paga en
-// efectivo con un monto mayor al total del ticket.
-const cambioCalculado = computed(() => {
-  if (metodoPago.value !== 'efectivo') return 0
-  const recibido = Number(montoRecibido.value) || 0
-  if (recibido <= totalTicket.value) return 0
-  return recibido - totalTicket.value
-})
-
-const faltaParaCubrirEfectivo = computed(() => {
-  if (metodoPago.value !== 'efectivo' || !montoRecibido.value) return 0
-  const recibido = Number(montoRecibido.value) || 0
-  if (recibido >= totalTicket.value) return 0
-  return totalTicket.value - recibido
-})
-
-// Si el método de pago no es efectivo, no tiene sentido pedir "monto recibido"
-const pagoEfectivoIncompleto = computed(() => {
-  return metodoPago.value === 'efectivo' && faltaParaCubrirEfectivo.value > 0
-})
-
 onMounted(async () => {
   try {
     await paquetesStore.obtenerPaquetes()
-  } catch (err) {
+  } catch {
     error.value = 'Error cargando paquetes'
   }
 })
 
-// CAMBIO (requisito #7): si cambia el nombre o teléfono, se invalida la
-// búsqueda anterior para no mostrar un resultado desactualizado.
-watch([() => ventasStore.cliente.nombre, () => ventasStore.cliente.telefono], () => {
-  resultadoCliente.value = null
-})
-
-function agregarPaquete(paquete: any) {
+function agregarPaquete(paquete: Paquete) {
   const itemExistente = ventasStore.carrito.find(i => i.idPaquete === paquete.id)
   if (itemExistente) {
     ventasStore.actualizarCantidad(paquete.id, itemExistente.cantidadPersonas + 1)
@@ -106,25 +156,6 @@ function agregarPaquete(paquete: any) {
   }
   exito.value = `${paquete.nombre} agregado`
   setTimeout(() => (exito.value = ''), 1500)
-}
-
-// CAMBIO (requisito #7): busca por nombre o teléfono si el cliente ya
-// tiene reservas anteriores (cliente frecuente) antes de venderle.
-async function buscarCliente() {
-  const query = (ventasStore.cliente.nombre || ventasStore.cliente.telefono || '').trim()
-  if (!query) {
-    error.value = 'Ingrese el nombre o teléfono del cliente para buscar'
-    setTimeout(() => (error.value = ''), 3000)
-    return
-  }
-  buscandoCliente.value = true
-  try {
-    resultadoCliente.value = await ventasStore.buscarClienteFrecuente(query)
-  } catch (err) {
-    resultadoCliente.value = null
-  } finally {
-    buscandoCliente.value = false
-  }
 }
 
 function incrementarCantidad(idPaquete: number) {
@@ -172,14 +203,20 @@ async function crearVenta() {
   error.value = ''
 
   try {
-    const venta = await ventasStore.crearVenta(fechaViaje.value)
+    const fechaViajeStr = fechaViaje.value ? fechaViaje.value.toISOString().split('T')[0] : undefined
+    const venta = await ventasStore.crearVenta(fechaViajeStr)
     idVentaCompletada.value = venta.id
     paso.value = 'pago'
-  } catch (err: any) {
-    error.value = err.response?.data?.message || err.message || 'Error creando la venta'
+    mostrarResumenDialog.value = false
+  } catch (err: unknown) {
+    error.value = getApiErrorMessage(err, 'Error creando la venta')
   } finally {
     cargando.value = false
   }
+}
+
+async function crearVentaDesdeDialogo() {
+  await crearVenta()
 }
 
 async function confirmarPago() {
@@ -192,14 +229,12 @@ async function confirmarPago() {
     await ventasStore.confirmarPago(
       idVentaCompletada.value,
       metodoPago.value,
-      referenciaPago.value,
-      // CAMBIO (requisito #5): se envía el monto recibido en efectivo
-      metodoPago.value === 'efectivo' ? montoRecibido.value || undefined : undefined,
+      referenciaPago.value
     )
 
     paso.value = 'confirmacion'
-  } catch (err: any) {
-    error.value = err.response?.data?.message || err.message || 'Error procesando el pago'
+  } catch (err: unknown) {
+    error.value = getApiErrorMessage(err, 'Error procesando el pago')
   } finally {
     cargando.value = false
   }
@@ -210,10 +245,12 @@ function nuevaVenta() {
   paso.value = 'catalogo'
   metodoPago.value = 'efectivo'
   referenciaPago.value = ''
+  montoRecibido.value = 0
   idVentaCompletada.value = null
-  fechaViaje.value = ''
-  montoRecibido.value = null
-  resultadoCliente.value = null
+  fechaViaje.value = null
+  clienteSeleccionado.value = null
+  queryCliente.value = ''
+  sugerenciasClientes.value = []
 }
 
 const metodosPago = [
@@ -221,14 +258,6 @@ const metodosPago = [
   { value: 'tarjeta_debito', label: 'Tarjeta Débito', icon: 'pi pi-credit-card' },
   { value: 'transferencia', label: 'Transferencia', icon: 'pi pi-send' },
 ]
-
-const estadosReserva = {
-  pagada: { clase: 'estado-pagada', label: 'Pagada' },
-  confirmada: { clase: 'estado-confirmada', label: 'Confirmada' },
-  pendiente: { clase: 'estado-pendiente', label: 'Pendiente' },
-  cancelada: { clase: 'estado-cancelada', label: 'Cancelada' },
-  completada: { clase: 'estado-completada', label: 'Completada' },
-}
 </script>
 
 <template>
@@ -324,32 +353,33 @@ const estadosReserva = {
           <div class="form-grid">
             <div class="form-group">
               <label>Nombre completo *</label>
-              <div class="input-with-button">
-                <input v-model="ventasStore.cliente.nombre" type="text" placeholder="Ej: Juan Pérez" />
-                <!-- CAMBIO (requisito #7): búsqueda de cliente frecuente -->
-                <button
-                  type="button"
-                  class="btn-buscar-cliente"
-                  title="Ver si ya es cliente frecuente"
-                  @click="buscarCliente"
-                  :disabled="buscandoCliente"
-                >
-                  <i class="pi pi-search"></i>
-                </button>
-              </div>
+              <AutoComplete
+                v-model="ventasStore.cliente.nombre"
+                :suggestions="sugerenciasClientes"
+                @complete="buscarCliente"
+                @item-select="seleccionarCliente"
+                optionLabel="label"
+                forceSelection
+                placeholder="Busque o escriba el nombre del cliente"
+                class="w-full"
+              >
+                <template #empty>
+                  <div class="p-2 text-center">
+                    <p class="text-sm text-gray-500 mb-2">No se encontró cliente</p>
+                    <Button
+                      label="Crear nuevo cliente"
+                      icon="pi pi-plus"
+                      severity="secondary"
+                      size="small"
+                      @click="abrirCrearCliente"
+                    />
+                  </div>
+                </template>
+              </AutoComplete>
             </div>
             <div class="form-group">
               <label>Teléfono</label>
               <input v-model="ventasStore.cliente.telefono" type="tel" placeholder="+591 71234567" />
-            </div>
-            <div class="form-group full" v-if="resultadoCliente">
-              <span v-if="resultadoCliente.esClienteFrecuente" class="badge-cliente badge-frecuente">
-                <i class="pi pi-star-fill"></i>
-                Cliente frecuente ({{ resultadoCliente.totalReservas }} reservas anteriores)
-              </span>
-              <span v-else class="badge-cliente badge-nuevo">
-                Cliente nuevo (sin reservas anteriores)
-              </span>
             </div>
             <div class="form-group">
               <label>Email</label>
@@ -357,8 +387,7 @@ const estadosReserva = {
             </div>
             <div class="form-group">
               <label>Fecha de viaje</label>
-              <!-- CAMBIO (requisito #6): no se permite elegir una fecha pasada -->
-              <input v-model="fechaViaje" type="date" :min="fechaMinima" />
+              <DatePicker v-model="fechaViaje" dateFormat="dd/mm/yy" :minDate="new Date()" placeholder="Seleccione fecha" class="w-full" />
             </div>
             <div class="form-group full">
               <label>Notas adicionales</label>
@@ -370,7 +399,7 @@ const estadosReserva = {
             <button class="btn btn-secondary" @click="paso = 'catalogo'">
               <i class="pi pi-arrow-left"></i> Atrás
             </button>
-            <button class="btn btn-primary" @click="crearVenta" :disabled="cargando">
+            <button class="btn btn-primary" @click="mostrarResumenDialog = true" :disabled="cargando">
               <i class="pi pi-credit-card"></i>
               {{ cargando ? 'Procesando...' : 'Continuar al Pago' }}
             </button>
@@ -404,26 +433,14 @@ const estadosReserva = {
               <input v-model="referenciaPago" type="text" placeholder="N° de transacción" />
             </div>
 
-            <!-- CAMBIO (requisito #5): monto recibido y cambio a devolver -->
             <div v-if="metodoPago === 'efectivo'" class="form-group">
-              <label>Monto recibido del cliente</label>
-              <input
-                v-model.number="montoRecibido"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Ej: si cobra Bs 100 y paga con Bs 150"
-              />
+              <label>Monto recibido (Bs)</label>
+              <input v-model.number="montoRecibido" type="number" min="0" step="0.01" placeholder="Ingrese monto" />
             </div>
-            <div v-if="metodoPago === 'efectivo' && cambioCalculado > 0" class="cambio-box">
-              <span>Cambio a entregar:</span>
-              <strong>Bs {{ cambioCalculado.toFixed(2) }}</strong>
+            <div v-if="metodoPago === 'efectivo' && montoRecibido > 0" class="total-pago-box" :class="{ 'text-green-600': montoRecibido >= totalTicket, 'text-red-600': montoRecibido < totalTicket }">
+              <span>Cambio:</span>
+              <strong>Bs {{ Math.max(0, montoRecibido - totalTicket).toFixed(2) }}</strong>
             </div>
-            <div v-if="pagoEfectivoIncompleto" class="cambio-box cambio-insuficiente">
-              <span>Falta para cubrir el total:</span>
-              <strong>Bs {{ faltaParaCubrirEfectivo.toFixed(2) }}</strong>
-            </div>
-
             <div class="total-pago-box">
               <span>Total a Pagar:</span>
               <strong>Bs {{ totalTicket.toFixed(2) }}</strong>
@@ -434,11 +451,7 @@ const estadosReserva = {
             <button class="btn btn-secondary" @click="paso = 'cliente'">
               <i class="pi pi-arrow-left"></i> Atrás
             </button>
-            <button
-              class="btn btn-success"
-              @click="confirmarPago"
-              :disabled="cargando || pagoEfectivoIncompleto"
-            >
+            <button class="btn btn-success" @click="confirmarPago" :disabled="cargando || (metodoPago === 'efectivo' && montoRecibido < totalTicket)">
               <i class="pi pi-check"></i>
               {{ cargando ? 'Procesando...' : 'Confirmar Pago Total' }}
             </button>
@@ -549,6 +562,51 @@ const estadosReserva = {
         </div>
       </div>
     </div>
+
+    <!-- Dialog de confirmación de reserva -->
+    <Dialog v-model:visible="mostrarResumenDialog" header="Confirmar Reserva" :style="{ width: '32rem' }" :modal="true">
+      <div class="space-y-3">
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <h4 class="font-bold text-gray-700 mb-1">Cliente</h4>
+          <p class="text-sm">{{ ventasStore.cliente.nombre }}</p>
+          <p class="text-sm text-gray-500">{{ ventasStore.cliente.telefono }} {{ ventasStore.cliente.email }}</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <h4 class="font-bold text-gray-700 mb-1">Paquetes</h4>
+          <div v-for="item in ventasStore.carrito" :key="item.idPaquete" class="flex justify-between text-sm">
+            <span>{{ item.nombrePaquete }} x {{ item.cantidadPersonas }}</span>
+            <span class="font-semibold">Bs {{ ((item.precio || 0) * item.cantidadPersonas).toFixed(2) }}</span>
+          </div>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <h4 class="font-bold text-gray-700 mb-1">Detalles</h4>
+          <p class="text-sm">Fecha de viaje: {{ fechaViaje ? new Date(fechaViaje).toLocaleDateString('es-ES') : 'No especificada' }}</p>
+          <p class="text-sm">Total personas: {{ ventasStore.carrito.reduce((sum, i) => sum + i.cantidadPersonas, 0) }}</p>
+        </div>
+        <div class="flex justify-between items-center text-lg font-bold text-orange-600 border-t pt-3">
+          <span>TOTAL</span>
+          <span>Bs {{ totalTicket.toFixed(2) }}</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <button class="btn btn-secondary" @click="mostrarResumenDialog = false">
+            <i class="pi pi-arrow-left"></i> Volver
+          </button>
+          <button class="btn btn-success" @click="crearVentaDesdeDialogo" :disabled="cargando">
+            <i class="pi pi-check"></i>
+            {{ cargando ? 'Procesando...' : 'Confirmar y Pagar' }}
+          </button>
+        </div>
+      </template>
+    </Dialog>
+
+    <ClienteSave
+      :mostrar="mostrarDialogCliente"
+      :modoEdicion="false"
+      @guardar="onClienteGuardado"
+      @close="mostrarDialogCliente = false"
+    />
   </div>
 </template>
 
@@ -1227,91 +1285,6 @@ const estadosReserva = {
 .total-pago-box strong {
   font-size: 1.75rem;
   color: #f15d30;
-}
-
-/* CAMBIO (requisito #5): caja de cambio a entregar / monto faltante */
-.cambio-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.625rem;
-  font-weight: 600;
-}
-
-.cambio-box span {
-  color: #065f46;
-}
-
-.cambio-box strong {
-  color: #059669;
-  font-size: 1.125rem;
-}
-
-.cambio-box:not(.cambio-insuficiente) {
-  background: #ecfdf5;
-  border: 1.5px solid #a7f3d0;
-}
-
-.cambio-box.cambio-insuficiente {
-  background: #fef2f2;
-  border: 1.5px solid #fecaca;
-}
-
-.cambio-box.cambio-insuficiente span,
-.cambio-box.cambio-insuficiente strong {
-  color: #dc2626;
-}
-
-/* CAMBIO (requisito #7): búsqueda de cliente frecuente */
-.input-with-button {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.input-with-button input {
-  flex: 1;
-}
-
-.btn-buscar-cliente {
-  width: 40px;
-  flex-shrink: 0;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background: white;
-  color: #f15d30;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-buscar-cliente:hover:not(:disabled) {
-  border-color: #f15d30;
-  background: #fff5f2;
-}
-
-.btn-buscar-cliente:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.badge-cliente {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-}
-
-.badge-frecuente {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.badge-nuevo {
-  background: #f3f4f6;
-  color: #6b7280;
 }
 
 /* Confirmación */

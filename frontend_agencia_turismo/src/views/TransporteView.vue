@@ -1,19 +1,19 @@
 <script lang="ts" setup>
+import type { Transporte } from '@/models/transporte'
 import TransporteList from '@/components/transporte/TransporteList.vue'
 import TransporteSave from '@/components/transporte/TransporteSave.vue'
-import Button from 'primevue/button'
 import { ref } from 'vue'
 
 const mostrarDialog = ref(false)
 const transporteListRef = ref<typeof TransporteList | null>(null)
-const transporteEdit = ref<any>(null)
+const transporteEdit = ref<Transporte | undefined>(undefined)
 
 function handleCreate() {
-  transporteEdit.value = null
+  transporteEdit.value = undefined
   mostrarDialog.value = true
 }
 
-function handleEdit(transporte: any) {
+function handleEdit(transporte: Transporte) {
   transporteEdit.value = transporte
   mostrarDialog.value = true
 }
@@ -29,8 +29,12 @@ function handleGuardar() {
 
 <template>
   <div>
-    <h2>Transportes</h2>
-    <Button label="Crear Nuevo" icon="pi pi-plus" @click="handleCreate" />
+    <div class="page-header">
+      <h2 class="page-title">Transportes</h2>
+      <button class="app-btn app-btn-primary" @click="handleCreate">
+        <i class="pi pi-plus"></i> Crear Nuevo
+      </button>
+    </div>
     <TransporteList ref="transporteListRef" @edit="handleEdit" />
     <TransporteSave
       :mostrar="mostrarDialog"

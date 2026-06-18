@@ -20,11 +20,10 @@ const items = ref([
   { label: 'Usuarios', icon: 'pi pi-user', route: '/usuarios' }
 ]);
 
-const adminRoutes = ['/dashboard', '/destinos', '/usuarios', '/reservas', '/guias-turisticos', '/transportes', '/paquetes-turisticos', '/resenas'];
+const adminRoutes = ['/dashboard', '/destinos', '/usuarios', '/reservas', '/guias-turisticos', '/transportes', '/paquetes-turisticos', '/resenas', '/clientes', '/itinerarios', '/extras'];
 
 const isAdminRoute = computed(() => adminRoutes.includes(route.path));
 const isLoginRoute = computed(() => route.path === '/login');
-const isPublicRoute = computed(() => !isAdminRoute.value && !isLoginRoute.value);
 
 const toggle = (event: Event) => {
   menu.value.toggle(event);

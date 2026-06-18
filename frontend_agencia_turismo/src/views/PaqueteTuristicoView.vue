@@ -1,19 +1,19 @@
 <script lang="ts" setup>
+import type { PaqueteTuristico } from '@/models/paquete-turistico'
 import PaqueteTuristicoList from '@/components/paquete-turistico/PaqueteTuristicoList.vue'
 import PaqueteTuristicoSave from '@/components/paquete-turistico/PaqueteTuristicoSave.vue'
-import Button from 'primevue/button'
 import { ref } from 'vue'
 
 const mostrarDialog = ref(false)
 const paqueteListRef = ref<typeof PaqueteTuristicoList | null>(null)
-const paqueteEdit = ref<any>(null)
+const paqueteEdit = ref<PaqueteTuristico | undefined>(undefined)
 
 function handleCreate() {
-  paqueteEdit.value = null
+  paqueteEdit.value = undefined
   mostrarDialog.value = true
 }
 
-function handleEdit(paquete: any) {
+function handleEdit(paquete: PaqueteTuristico) {
   paqueteEdit.value = paquete
   mostrarDialog.value = true
 }
@@ -29,8 +29,12 @@ function handleGuardar() {
 
 <template>
   <div>
-    <h2>Paquetes Turísticos</h2>
-    <Button label="Crear Nuevo" icon="pi pi-plus" @click="handleCreate" />
+    <div class="page-header">
+      <h2 class="page-title">Paquetes Turísticos</h2>
+      <button class="app-btn app-btn-primary" @click="handleCreate">
+        <i class="pi pi-plus"></i> Crear Nuevo
+      </button>
+    </div>
     <PaqueteTuristicoList ref="paqueteListRef" @edit="handleEdit" />
     <PaqueteTuristicoSave
       :mostrar="mostrarDialog"

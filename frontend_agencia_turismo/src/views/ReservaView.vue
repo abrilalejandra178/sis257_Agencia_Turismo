@@ -1,19 +1,19 @@
 <script lang="ts" setup>
+import type { Reserva } from '@/models/reserva'
 import ReservaList from '@/components/reserva/ReservaList.vue'
 import ReservaSave from '@/components/reserva/ReservaSave.vue'
-import Button from 'primevue/button'
 import { ref } from 'vue'
 
 const mostrarDialog = ref(false)
 const reservaListRef = ref<typeof ReservaList | null>(null)
-const reservaEdit = ref<any>(null)
+const reservaEdit = ref<Reserva | undefined>(undefined)
 
 function handleCreate() {
-  reservaEdit.value = null
+  reservaEdit.value = undefined
   mostrarDialog.value = true
 }
 
-function handleEdit(reserva: any) {
+function handleEdit(reserva: Reserva) {
   reservaEdit.value = reserva
   mostrarDialog.value = true
 }
@@ -29,8 +29,10 @@ function handleGuardar() {
 
 <template>
   <div>
-    <h2>Reservas</h2>
-    <Button label="Crear Nuevo" icon="pi pi-plus" @click="handleCreate" />
+    <div class="page-header">
+      <h2 class="page-title">Reservas</h2>
+
+    </div>
     <ReservaList ref="reservaListRef" @edit="handleEdit" />
     <ReservaSave
       :mostrar="mostrarDialog"

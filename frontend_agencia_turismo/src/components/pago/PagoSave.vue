@@ -2,11 +2,10 @@
 import type { Pago } from '@/models/pago'
 import type { Reserva } from '@/models/reserva'
 import http from '@/plugins/axios'
-import { InputNumber, Select } from 'primevue'
-import Button from 'primevue/button'
+import { DatePicker, InputNumber, Select } from 'primevue'
 import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
 import { computed, ref, watch } from 'vue'
+import { getApiErrorMessage } from '@/utils/error'
 
 const ENDPOINT = 'pagos'
 const props = defineProps({
@@ -26,55 +25,44 @@ const dialogVisible = computed({
   },
 })
 
-// CAMBIO (requisito #6): no se permite elegir una fecha de pago anterior a hoy
-const fechaMinima = new Date().toISOString().slice(0, 10)
+const reservas = ref<Reserva[]>([])
+const pago = ref<Pago>({ ...props.pago })
 
-// Opciones de los selects, alineadas con los enums del backend (MetodoPago / EstadoPago)
-const opcionesMetodoPago = [
+function toDate(value: string | Date | undefined): Date {
+  if (value instanceof Date) return value
+  const fechaStr = value ?? ''
+  const [y = 0, m = 1, d = 1] = (fechaStr.split('T')[0] || '').split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
+const metodosPago = [
   { label: 'Efectivo', value: 'efectivo' },
   { label: 'Tarjeta de crédito', value: 'tarjeta_credito' },
   { label: 'Tarjeta de débito', value: 'tarjeta_debito' },
   { label: 'Transferencia', value: 'transferencia' },
+  { label: 'Depósito bancario', value: 'deposito_bancario' },
   { label: 'Cheque', value: 'cheque' },
+  { label: 'Tigo Money', value: 'tigo_money' },
+  { label: 'QR', value: 'qr' },
+  { label: 'PayPal', value: 'paypal' },
 ]
-const opcionesEstadoPago = [
+
+const estadosPago = [
   { label: 'Pendiente', value: 'pendiente' },
   { label: 'Procesando', value: 'procesando' },
   { label: 'Completado', value: 'completado' },
   { label: 'Fallido', value: 'fallido' },
   { label: 'Reembolsado', value: 'reembolsado' },
+  { label: 'Anulado', value: 'anulado' },
+  { label: 'Pendiente reembolso', value: 'pendiente_reembolso' },
 ]
-
-const reservas = ref<Reserva[]>([])
-const pago = ref<Pago>({ ...props.pago })
-
-// CAMBIO (requisito #5): monto que el cliente entrega físicamente (solo
-// tiene sentido para pagos en efectivo). Se usa para calcular el cambio.
-const montoRecibido = ref<number | null>(null)
 
 watch(
   () => props.pago,
   (newVal) => {
     pago.value = { ...newVal }
-    montoRecibido.value = newVal?.montoRecibido ?? null
   },
 )
-
-// CAMBIO (requisito #5): cambio/vuelto a entregar si el cliente paga con
-// un monto más elevado que el monto a cobrar.
-const cambioCalculado = computed(() => {
-  const monto = Number(pago.value.monto) || 0
-  const recibido = Number(montoRecibido.value) || 0
-  if (recibido <= monto) return 0
-  return recibido - monto
-})
-
-const faltaParaCubrir = computed(() => {
-  const monto = Number(pago.value.monto) || 0
-  const recibido = Number(montoRecibido.value) || 0
-  if (!montoRecibido.value || recibido >= monto) return 0
-  return monto - recibido
-})
 
 async function cargarDatos() {
   reservas.value = await http.get('reservas').then((res) => res.data)
@@ -88,9 +76,6 @@ async function handleSave() {
       metodoPago: pago.value.metodoPago,
       estadoPago: pago.value.estadoPago,
       idReserva: pago.value.idReserva,
-      // CAMBIO (requisito #5): se envía el monto recibido para que el
-      // backend calcule y guarde el cambio correspondiente.
-      montoRecibido: montoRecibido.value || undefined,
     }
     if (props.modoEdicion) {
       await http.patch(`${ENDPOINT}/${pago.value.id}`, body)
@@ -99,10 +84,9 @@ async function handleSave() {
     }
     emit('guardar')
     pago.value = {} as Pago
-    montoRecibido.value = null
     dialogVisible.value = false
-  } catch (error: any) {
-    alert(error?.response?.data?.message)
+  } catch (error: unknown) {
+    alert(getApiErrorMessage(error, 'Error guardando pago'))
   }
 }
 
@@ -112,11 +96,9 @@ watch(
     if (nuevoValor) {
       await cargarDatos()
       if (props.pago?.id) {
-        pago.value = { ...props.pago }
-        montoRecibido.value = props.pago.montoRecibido ?? null
+        pago.value = { ...props.pago, fechaPago: toDate(props.pago.fechaPago) }
       } else {
-        pago.value = {} as Pago
-        montoRecibido.value = null
+        pago.value = { fechaPago: new Date() } as Pago
       }
     }
   },
@@ -130,89 +112,67 @@ watch(
       :header="(props.modoEdicion ? 'Editar' : 'Crear') + ' Pago'"
       style="width: 30rem"
     >
-      <div class="flex items-center gap-4 mb-4">
-        <label for="reserva" class="font-semibold w-4">Reserva</label>
-        <Select
-          id="reserva"
-          v-model="pago.idReserva"
-          :options="reservas"
-          optionLabel="id"
-          optionValue="id"
-          class="flex-auto"
-        />
+      <div class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="reserva" class="block font-bold mb-2">Reserva *</label>
+          <Select
+            id="reserva"
+            v-model="pago.idReserva"
+            :options="reservas"
+            optionLabel="id"
+            optionValue="id"
+            filter
+            class="w-full"
+          />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="monto" class="block font-bold mb-2">Monto *</label>
+          <InputNumber
+            id="monto"
+            v-model="pago.monto"
+            class="w-full"
+            :min="0"
+            :minFractionDigits="2"
+          />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="fechaPago" class="block font-bold mb-2">Fecha Pago *</label>
+          <DatePicker id="fechaPago" v-model="pago.fechaPago" class="w-full" dateFormat="dd/mm/yy" />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="metodoPago" class="block font-bold mb-2">Método Pago *</label>
+          <Select
+            id="metodoPago"
+            v-model="pago.metodoPago"
+            :options="metodosPago"
+            optionLabel="label"
+            optionValue="value"
+            filter
+            class="w-full"
+            placeholder="Seleccione método"
+          />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="estadoPago" class="block font-bold mb-2">Estado Pago *</label>
+          <Select
+            id="estadoPago"
+            v-model="pago.estadoPago"
+            :options="estadosPago"
+            optionLabel="label"
+            optionValue="value"
+            filter
+            class="w-full"
+            placeholder="Seleccione estado"
+          />
+        </div>
       </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="monto" class="font-semibold w-4">Monto a cobrar</label>
-        <InputNumber
-          id="monto"
-          v-model="pago.monto"
-          class="flex-auto"
-          :min="0"
-          :minFractionDigits="2"
-        />
-      </div>
-
-      <!-- CAMBIO (requisito #5): monto recibido del cliente y cálculo de cambio -->
-      <div class="flex items-center gap-4 mb-2">
-        <label for="montoRecibido" class="font-semibold w-4">Monto recibido</label>
-        <InputNumber
-          id="montoRecibido"
-          v-model="montoRecibido"
-          class="flex-auto"
-          :min="0"
-          :minFractionDigits="2"
-          placeholder="Ej: si cobra Bs 100 y paga con Bs 150"
-        />
-      </div>
-      <div v-if="cambioCalculado > 0" class="mb-4 text-sm font-semibold text-green-600">
-        Cambio a entregar al cliente: Bs {{ cambioCalculado.toFixed(2) }}
-      </div>
-      <div v-else-if="faltaParaCubrir > 0" class="mb-4 text-sm font-semibold text-red-600">
-        El monto recibido no cubre el total. Falta Bs {{ faltaParaCubrir.toFixed(2) }}
-      </div>
-      <div v-else class="mb-4"></div>
-
-      <div class="flex items-center gap-4 mb-4">
-        <label for="fechaPago" class="font-semibold w-4">Fecha Pago</label>
-        <InputText
-          id="fechaPago"
-          v-model="pago.fechaPago as any"
-          type="date"
-          class="flex-auto"
-          :min="fechaMinima"
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="metodoPago" class="font-semibold w-4">Método Pago</label>
-        <Select
-          id="metodoPago"
-          v-model="pago.metodoPago"
-          :options="opcionesMetodoPago"
-          optionLabel="label"
-          optionValue="value"
-          class="flex-auto"
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="estadoPago" class="font-semibold w-4">Estado Pago</label>
-        <Select
-          id="estadoPago"
-          v-model="pago.estadoPago"
-          :options="opcionesEstadoPago"
-          optionLabel="label"
-          optionValue="value"
-          class="flex-auto"
-        />
-      </div>
-      <div class="flex justify-end gap-2">
-        <Button
-          type="button"
-          label="Cancelar"
-          icon="pi pi-times"
-          severity="secondary"
-          @click="dialogVisible = false"
-        />
-        <Button type="button" label="Guardar" icon="pi pi-save" @click="handleSave" />
+      <div class="flex justify-content-end gap-2 mt-4">
+        <button type="button" class="app-btn app-btn-secondary" @click="dialogVisible = false">
+          <i class="pi pi-times"></i> Cancelar
+        </button>
+        <button type="button" class="app-btn app-btn-primary" @click="handleSave">
+          <i class="pi pi-save"></i> Guardar
+        </button>
       </div>
     </Dialog>
   </div>

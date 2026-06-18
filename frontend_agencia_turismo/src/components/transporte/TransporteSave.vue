@@ -2,10 +2,9 @@
 import type { Transporte } from '@/models/transporte'
 import http from '@/plugins/axios'
 import { Select, Textarea } from 'primevue'
-import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
 import { computed, ref, watch } from 'vue'
+import { getApiErrorMessage } from '@/utils/error'
 
 const ENDPOINT = 'transportes'
 const props = defineProps({
@@ -48,8 +47,8 @@ async function handleSave() {
     emit('guardar')
     transporte.value = {} as Transporte
     dialogVisible.value = false
-  } catch (error: any) {
-    alert(error?.response?.data?.message)
+  } catch (error: unknown) {
+    alert(getApiErrorMessage(error, 'Error guardando transporte'))
   }
 }
 </script>
@@ -61,31 +60,69 @@ async function handleSave() {
       :header="(props.modoEdicion ? 'Editar' : 'Crear') + ' Transporte'"
       style="width: 28rem"
     >
-      <div class="flex items-center gap-4 mb-4">
-        <label for="tipo" class="font-semibold w-3">Tipo</label>
-        <Select
-          id="tipo"
-          v-model="transporte.tipo"
-          :options="['Bus', 'Minibús', 'Auto', 'Camioneta', 'Bicicleta', 'Motocicleta', 'Avión', 'Barco']"
-          class="flex-auto"
-        />
+      <div class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="tipo" class="block font-bold mb-2">Tipo *</label>
+          <Select
+            id="tipo"
+            v-model="transporte.tipo"
+            :options="[
+              { label: 'Avión', value: 'AVION' },
+              { label: 'Bus', value: 'BUS' },
+              { label: 'Minibús', value: 'MINIBUS' },
+              { label: 'Camioneta', value: 'CAMIONETA' },
+              { label: 'Barco', value: 'BARCO' },
+              { label: 'Tren', value: 'TREN' },
+              { label: 'Privado', value: 'PRIVADO' },
+              { label: 'Motorizado', value: 'MOTORIZADO' },
+              { label: 'Bicicleta', value: 'BICICLETA' },
+              { label: 'Caminata', value: 'CAMINATA' },
+            ]"
+            optionLabel="label"
+            optionValue="value"
+            filter
+            class="w-full"
+            placeholder="Seleccione tipo"
+          />
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="empresa" class="block font-bold mb-2">Empresa</label>
+          <Select
+            id="empresa"
+            v-model="transporte.empresa"
+            :options="[
+              { label: 'BOA', value: 'BOA' },
+              { label: 'Trans Copacabana', value: 'TRANS_COPACABANA' },
+              { label: 'Titicaca', value: 'TITICACA' },
+              { label: 'Nueva Americana', value: 'NUEVA_AMERICANA' },
+              { label: 'Viajes Oficial', value: 'VIAJES_OFICIAL' },
+              { label: 'Cuestas', value: 'CUESTAS' },
+              { label: 'Amazonas', value: 'AMAZONAS' },
+              { label: 'Bolívar', value: 'BOLIVAR' },
+              { label: 'El Salvador', value: 'EL_SALVADOR' },
+              { label: 'Florida', value: 'FLORIDA' },
+              { label: 'Panamericana', value: 'PANAMERICANA' },
+              { label: 'Otro', value: 'OTRO' },
+            ]"
+            optionLabel="label"
+            optionValue="value"
+            filter
+            class="w-full"
+            placeholder="Seleccione empresa"
+          />
+        </div>
+        <div class="field col-12">
+          <label for="descripcion" class="block font-bold mb-2">Descripción</label>
+          <Textarea id="descripcion" v-model="transporte.descripcion" class="w-full" rows="3" maxlength="1000" />
+        </div>
       </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="empresa" class="font-semibold w-3">Empresa</label>
-        <Select
-          id="empresa"
-          v-model="transporte.empresa"
-          :options="['Trans Copacabana', 'Bolivia Bus', 'Flota Yungas', 'Trans Potosí', 'Turbus', 'Otra']"
-          class="flex-auto"
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="descripcion" class="font-semibold w-3">Descripción</label>
-        <Textarea id="descripcion" v-model="transporte.descripcion" class="flex-auto" rows="3" maxlength="1000" />
-      </div>
-      <div class="flex justify-end gap-2">
-        <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />
-        <Button type="button" label="Guardar" icon="pi pi-save" @click="handleSave" />
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" class="app-btn app-btn-secondary" @click="dialogVisible = false">
+          <i class="pi pi-times"></i> Cancelar
+        </button>
+        <button type="button" class="app-btn app-btn-primary" @click="handleSave">
+          <i class="pi pi-save"></i> Guardar
+        </button>
       </div>
     </Dialog>
   </div>

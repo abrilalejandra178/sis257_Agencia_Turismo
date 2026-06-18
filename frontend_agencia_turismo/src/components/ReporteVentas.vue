@@ -15,8 +15,8 @@ async function cargarReporte() {
   cargando.value = true
   error.value = ''
   try {
-    await ventasStore.obtenerReporte(filtro.value as any)
-  } catch (err) {
+    await ventasStore.obtenerReporte(filtro.value)
+  } catch {
     error.value = 'Error cargando reporte de ventas'
   } finally {
     cargando.value = false
@@ -131,8 +131,6 @@ async function cambiarFiltro(nuevoFiltro: string) {
                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Paquete</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Personas</th>
                 <th class="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
-                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-700">Pagado</th>
-                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-700">Pendiente</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Estado</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Fecha</th>
               </tr>
@@ -147,8 +145,6 @@ async function cambiarFiltro(nuevoFiltro: string) {
                 <td class="px-6 py-4 text-sm text-gray-900">{{ venta.paquete }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900">{{ venta.cantidadPersonas }}</td>
                 <td class="px-6 py-4 text-sm font-semibold text-gray-900 text-right">${{ venta.total.toFixed(2) }}</td>
-                <td class="px-6 py-4 text-sm font-semibold text-green-600 text-right">${{ venta.adelanto.toFixed(2) }}</td>
-                <td class="px-6 py-4 text-sm font-semibold text-orange-600 text-right">${{ venta.saldoPendiente.toFixed(2) }}</td>
                 <td class="px-6 py-4 text-sm">
                   <span :class="[
                     'px-3 py-1 rounded-full text-xs font-semibold capitalize',

@@ -1,20 +1,6 @@
 -- Seed de datos de prueba para SIS257 Agencia de Turismo
 -- Ejecutar en la base de datos PostgreSQL con el esquema ya sincronizado.
 -- CONTRASEÑA GENERAL PARA TODOS LOS USUARIOS: 123456
-TRUNCATE table
-extras,
-itinerarios,
-clientes,
-pagos,
-resenas,
-reservas,
-paquetes_turisticos,
-transportes,
-guias_turisticos,
-destinos,
-usuarios
-RESTART IDENTITY CASCADE;
-
 
 -- Reset de secuencias
 SELECT setval('destinos_id_seq', 8, true);
@@ -157,5 +143,3 @@ INSERT INTO pagos (id, total, fecha_pago, metodo_pago, estado_pago, referencia_p
 INSERT INTO resenas (id, comentario, calificacion, fecha, id_usuario, id_paquete) OVERRIDING SYSTEM VALUE VALUES
 (1, 'Una experiencia única, el Salar es mágico y el guía muy profesional.', 5, '2026-08-20', 7, 1),
 (2, 'El trekking fue exigente pero las vistas valieron cada paso.',          4, '2026-09-10', 7, 2);
-
-

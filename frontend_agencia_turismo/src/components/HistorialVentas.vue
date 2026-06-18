@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useVentasStore } from '@/stores/ventas'
+import { Dialog } from 'primevue'
+import Button from 'primevue/button'
 
 const ventasStore = useVentasStore()
 const filtro = ref('todos')
 const cargando = ref(false)
 const error = ref('')
+
+const mostrarCancelDialog = ref(false)
+const reservaCancelId = ref<number | null>(null)
+const motivoCancelacion = ref('')
 
 onMounted(async () => {
   await cargarVentas()
@@ -15,8 +21,8 @@ async function cargarVentas() {
   cargando.value = true
   error.value = ''
   try {
-    await ventasStore.obtenerVentas(filtro.value as any)
-  } catch (err) {
+    await ventasStore.obtenerVentas(filtro.value)
+  } catch {
     error.value = 'Error cargando historial de ventas'
   } finally {
     cargando.value = false
@@ -43,19 +49,24 @@ function getEstadoColor(estado: string) {
   }
 }
 
-async function cancelarReserva(idReserva: number) {
-  // CAMBIO (requisito #2): se solicita el motivo antes de cancelar
-  const motivo = prompt('Ingrese el motivo de la cancelación:')
-  if (motivo === null) return // el usuario presionó "Cancelar" en el prompt
-  if (!motivo.trim()) {
-    error.value = 'Debe indicar un motivo para cancelar la reserva'
+function mostrarCancelarReserva(idReserva: number) {
+  reservaCancelId.value = idReserva
+  motivoCancelacion.value = ''
+  mostrarCancelDialog.value = true
+}
+
+async function confirmarCancelarReserva() {
+  if (!motivoCancelacion.value || motivoCancelacion.value.length < 5) {
+    alert('El motivo es obligatorio y debe tener al menos 5 caracteres')
     return
   }
-
   try {
-    await ventasStore.cancelarReserva(idReserva, motivo.trim())
+    if (reservaCancelId.value) {
+      await ventasStore.cancelarReserva(reservaCancelId.value, motivoCancelacion.value)
+    }
+    mostrarCancelDialog.value = false
     await cargarVentas()
-  } catch (err) {
+  } catch {
     error.value = 'Error cancelando la reserva'
   }
 }
@@ -114,8 +125,7 @@ async function cancelarReserva(idReserva: number) {
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Cliente</th>
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Paquete</th>
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
-              <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Pagado</th>
-              <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Saldo</th>
+
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Estado</th>
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Fecha</th>
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Acciones</th>
@@ -134,10 +144,8 @@ async function cancelarReserva(idReserva: number) {
               </td>
               <td class="px-6 py-4 text-sm text-gray-900">{{ venta.paquetesTuristicos?.nombre }}</td>
               <td class="px-6 py-4 text-sm font-semibold text-gray-900">${{ venta.total.toFixed(2) }}</td>
-              <td class="px-6 py-4 text-sm text-green-600 font-semibold">${{ venta.adelanto.toFixed(2) }}</td>
-              <td class="px-6 py-4 text-sm text-orange-600 font-semibold">${{ venta.saldoPendiente.toFixed(2) }}</td>
               <td class="px-6 py-4 text-sm">
-                <span :class="['px-3 py-1 rounded-full text-xs font-semibold capitalize', getEstadoColor(venta.estado)]" :title="venta.estado === 'cancelada' ? venta.motivoCancelacion : ''">
+                <span :class="['px-3 py-1 rounded-full text-xs font-semibold capitalize', getEstadoColor(venta.estado)]">
                   {{ venta.estado }}
                 </span>
               </td>
@@ -147,7 +155,7 @@ async function cancelarReserva(idReserva: number) {
               <td class="px-6 py-4 text-sm">
                 <button
                   v-if="venta.estado !== 'cancelada'"
-                  @click="cancelarReserva(venta.id)"
+                  @click="mostrarCancelarReserva(venta.id)"
                   class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-semibold transition"
                 >
                   Cancelar
@@ -158,5 +166,18 @@ async function cancelarReserva(idReserva: number) {
         </table>
       </div>
     </div>
+
+    <!-- Dialog cancelar -->
+    <Dialog v-model:visible="mostrarCancelDialog" header="Cancelar Reserva" :style="{ width: '30rem' }">
+      <p class="mb-2">¿Está seguro de que desea cancelar esta reserva?</p>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de cancelación *</label>
+        <textarea v-model="motivoCancelacion" rows="3" class="w-full border rounded p-2" placeholder="Ingrese el motivo (mínimo 5 caracteres)"></textarea>
+      </div>
+      <div class="flex justify-end gap-2">
+        <Button type="button" label="Volver" severity="secondary" @click="mostrarCancelDialog = false" />
+        <Button type="button" label="Confirmar Cancelación" severity="danger" @click="confirmarCancelarReserva" />
+      </div>
+    </Dialog>
   </div>
 </template>

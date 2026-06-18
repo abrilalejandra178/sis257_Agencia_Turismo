@@ -1,5 +1,6 @@
 import type { Usuario } from './usuario'
 import type { PaqueteTuristico } from './paquete-turistico'
+import type { Extra } from './extra'
 
 export interface Reserva {
   id: number
@@ -10,13 +11,12 @@ export interface Reserva {
   fechaViaje?: Date
   cantidadPersonas: number
   total: number
-  adelanto: number
-  saldoPendiente: number
   estado: string
-  // CAMBIO (requisito #2): motivo de cancelación / baja de la reserva
-  motivoCancelacion?: string
   idUsuario: number
   idPaquete: number
+  idCliente?: number
   usuario: Usuario
   paquetesTuristicos: PaqueteTuristico
+  extras?: Extra[]
+  idsExtras?: number[]
 }

@@ -14,10 +14,9 @@ export interface Venta {
   nombreCliente: string
   telefonoCliente?: string
   emailCliente?: string
+  idCliente?: number
   items: ItemCarrito[]
   total: number
-  adelanto: number
-  saldoPendiente: number
   estado?: string
   notas?: string
   metodoPago?: string
@@ -29,8 +28,6 @@ export interface DetalleVenta {
   nombreCliente: string
   paquete: string
   total: number
-  adelanto: number
-  saldoPendiente: number
   estado: string
   fechaReserva: string
   cantidadPersonas: number
@@ -44,6 +41,17 @@ export interface ReporteVentas {
   detalleVentas: DetalleVenta[]
 }
 
+export interface HistorialVenta {
+  id: number
+  nombreCliente: string
+  telefonoCliente?: string
+  emailCliente?: string
+  total: number
+  estado: string
+  fechaCreacion: string
+  paquetesTuristicos?: { nombre: string }
+}
+
 export const useVentasStore = defineStore('ventas', {
   state: () => ({
     carrito: [] as ItemCarrito[],
@@ -51,10 +59,11 @@ export const useVentasStore = defineStore('ventas', {
       nombre: '',
       telefono: '',
       email: '',
+      id: undefined as number | undefined,
     },
     notasVenta: '',
     ventaActual: null as Venta | null,
-    historialVentas: [] as any[],
+    historialVentas: [] as HistorialVenta[],
     reporteVentas: {
       totalVentas: 0,
       totalPagado: 0,
@@ -106,7 +115,7 @@ export const useVentasStore = defineStore('ventas', {
 
     vaciarCarrito() {
       this.carrito = []
-      this.cliente = { nombre: '', telefono: '', email: '' }
+      this.cliente = { nombre: '', telefono: '', email: '', id: undefined }
       this.notasVenta = ''
     },
 
@@ -124,6 +133,7 @@ export const useVentasStore = defineStore('ventas', {
           nombreCliente: this.cliente.nombre,
           telefonoCliente: this.cliente.telefono,
           emailCliente: this.cliente.email,
+          idCliente: this.cliente.id,
           items: this.carrito,
           notas: this.notasVenta,
           fechaViaje: fechaViaje || undefined,
@@ -138,18 +148,11 @@ export const useVentasStore = defineStore('ventas', {
       }
     },
 
-    async confirmarPago(
-      idReserva: number,
-      metodoPago: string,
-      referenciaPago?: string,
-      // CAMBIO (requisito #5): monto que entrega el cliente, para calcular el cambio
-      montoRecibido?: number,
-    ) {
+    async confirmarPago(idReserva: number, metodoPago: string, referenciaPago?: string) {
       try {
         const payload = {
           metodoPago,
           referenciaPago,
-          montoRecibido,
         }
 
         const response = await http.post(`/ventas/${idReserva}/confirmar-pago`, payload)
@@ -184,25 +187,12 @@ export const useVentasStore = defineStore('ventas', {
       }
     },
 
-    // CAMBIO (requisito #2): se envía el motivo de la cancelación
     async cancelarReserva(idReserva: number, motivo?: string) {
       try {
         const response = await http.patch(`/ventas/${idReserva}/cancelar`, { motivo })
         return response.data
       } catch (error) {
         console.error('Error cancelando reserva:', error)
-        throw error
-      }
-    },
-
-    // CAMBIO (requisito #7): búsqueda de cliente para saber si ya es
-    // un cliente frecuente (con reservas anteriores) antes de venderle.
-    async buscarClienteFrecuente(query: string) {
-      try {
-        const response = await http.get('/ventas/buscar-cliente', { params: { query } })
-        return response.data as { totalReservas: number; esClienteFrecuente: boolean; reservas: any[] }
-      } catch (error) {
-        console.error('Error buscando cliente:', error)
         throw error
       }
     },
