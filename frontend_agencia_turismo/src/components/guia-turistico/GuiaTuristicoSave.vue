@@ -41,7 +41,7 @@ async function handleSave() {
       teléfono: guia.value.teléfono,
       idioma: guia.value.idioma,
       experiencia: guia.value.experiencia,
-      calificación: guia.value.calificación,
+      calificación: guia.value.calificacion,
     }
     if (props.modoEdicion) {
       await http.patch(`${ENDPOINT}/${guia.value.id}`, body)
@@ -77,8 +77,14 @@ async function handleSave() {
         <InputText id="teléfono" v-model="guia.teléfono" class="flex-auto" autocomplete="off" maxlength="8" />
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="idioma" class="font-semibold w-3">Idioma</label>
-        <InputText id="idioma" v-model="guia.idioma" class="flex-auto" autocomplete="off" maxlength="50" />
+        <label for="teléfono" class="font-semibold w-3">Idioma</label>
+        <!-- DESPUÉS idioma con Select: -->
+        <Select
+          id="idioma"
+          v-model="guia.idioma"
+          :options="['Español', 'Inglés', 'Francés', 'Portugués', 'Alemán', 'Italiano', 'Quechua', 'Aymara']"
+          class="flex-auto"
+        />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="experiencia" class="font-semibold w-3">Experiencia</label>
@@ -87,7 +93,7 @@ async function handleSave() {
       <!-- CAMBIO (requisito #4): clasificación del guía con estrellas del 1 al 5 -->
       <div class="flex items-center gap-4 mb-4">
         <label for="calificación" class="font-semibold w-3">Calificación</label>
-        <Rating id="calificación" v-model="guia.calificación" :stars="5" />
+        <Rating id="calificación" v-model="guia.calificacion" :stars="5" />
       </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />

@@ -61,11 +61,13 @@ async function handleSave() {
       // Se filtran las URLs vacías antes de enviarlas
       imagenes: imagenesGaleria.value.filter((url) => url.trim() !== ''),
     }
+
     if (props.modoEdicion) {
       await http.patch(`${ENDPOINT}/${destino.value.id}`, body)
     } else {
       await http.post(ENDPOINT, body)
     }
+
     emit('guardar')
     destino.value = {} as Destino
     imagenesGaleria.value = []

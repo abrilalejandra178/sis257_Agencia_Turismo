@@ -94,6 +94,7 @@ defineExpose({ obtenerLista })
               @click="abrirGaleria(data)"
             />
           </div>
+
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">

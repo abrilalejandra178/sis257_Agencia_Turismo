@@ -138,6 +138,15 @@ watch(
     }
   },
 )
+
+// 🔥 AQUÍ VA EL COMPUTED (FUERA DEL WATCH)
+const cambio = computed(() => {
+  const total = reserva.value.total || 0
+  const adelanto = reserva.value.adelanto || 0
+
+  return adelanto > total ? adelanto - total : 0
+})
+
 </script>
 
 <template>

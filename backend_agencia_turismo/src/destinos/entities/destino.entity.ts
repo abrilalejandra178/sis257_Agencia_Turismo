@@ -1,36 +1,34 @@
+<<<<<<< HEAD
 import { PaquetesTuristico } from 'src/paquetes_turisticos/entities/paquetes_turistico.entity';
 import { ImagenDestino } from './imagen-destino.entity';
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+=======
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm'
+import { DestinoImagen } from './destino_imagen.entity'
+import { PaquetesTuristico } from '../../paquetes_turisticos/entities/paquetes_turistico.entity'
+>>>>>>> 8fa77c4a918b398dfb46fc35998ab05891a97e9e
 
 @Entity('destinos')
 export class Destino {
-  @PrimaryGeneratedColumn('identity')
-  id: number;
+  @PrimaryGeneratedColumn()
+  id: number
 
-  @Column('varchar', { length: 50 })
-  nombre: string;
+  @Column()
+  nombre: string
 
-  @Column('varchar', { length: 10000, name: 'descripcion' })
-  descripción: string;
+  @Column()
+  descripción: string
 
-  @Column('varchar', { length: 10000, name: 'ubicacion' })
-  ubicación: string;
+  @Column()
+  ubicación: string
 
-  @Column('varchar', { length: 10000 })
-  imagen: string;
-
-  @CreateDateColumn({ name: 'fecha_creacion' })
-  fechaCreacion: Date;
-
-  @UpdateDateColumn({ name: 'fecha_modificacion' })
-  fechaModificacion: Date;
-
-  @DeleteDateColumn({ name: 'fecha_eliminacion' })
-  fechaEliminacion: Date;
-
-  @OneToMany(() => PaquetesTuristico, paquete => paquete.destino) 
+  @OneToMany(
+    () => PaquetesTuristico,
+    (paquete) => paquete.destino,
+  )
   paquetesTuristicos: PaquetesTuristico[];
 
+<<<<<<< HEAD
   // CAMBIO (requisito #1): galería de imágenes adicionales del destino.
   // orphanedRowAction: 'delete' permite que al guardar un nuevo arreglo de
   // imágenes, las que ya no estén en la lista se eliminen automáticamente.
@@ -40,3 +38,11 @@ export class Destino {
   })
   imagenes: ImagenDestino[];
 }
+=======
+  @OneToMany(() => DestinoImagen, (img) => img.destino, {
+    cascade: true,
+    eager: true,
+  })
+  imagenes: DestinoImagen[]
+}
+>>>>>>> 8fa77c4a918b398dfb46fc35998ab05891a97e9e

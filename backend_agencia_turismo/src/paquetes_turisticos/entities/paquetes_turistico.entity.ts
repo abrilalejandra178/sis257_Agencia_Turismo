@@ -59,21 +59,20 @@ export class PaquetesTuristico {
   @DeleteDateColumn({ name: 'fecha_eliminacion' })
   fechaEliminacion: Date;
 
-  @ManyToOne(() => Destino, destino => destino.paquetesTuristicos)
-  @JoinColumn({ name: 'id_destino', referencedColumnName: 'id' })
+  @ManyToOne(() => Destino, (destino) => destino.paquetesTuristicos)
   destino: Destino;
 
-  @ManyToOne(() => GuiaTuristico, guia => guia.paquetesTuristicos)
+  @ManyToOne(() => GuiaTuristico, (guia) => guia.paquetesTuristicos)
   @JoinColumn({ name: 'id_guia', referencedColumnName: 'id' })
   guia: GuiaTuristico;
 
-  @ManyToOne(() => Transporte, transporte => transporte.paquetesTuristicos)
+  @ManyToOne(() => Transporte, (transporte) => transporte.paquetesTuristicos)
   @JoinColumn({ name: 'id_transporte', referencedColumnName: 'id' })
   transporte: Transporte;
 
-  @OneToMany(() => Reserva, reserva => reserva.paquetesTuristicos)
+  @OneToMany(() => Reserva, (reserva) => reserva.paquetesTuristicos)
   reservas: Reserva[];
 
-  @OneToMany(() => Resena, resena => resena.paquetesTuristicos)
+  @OneToMany(() => Resena, (resena) => resena.paquetesTuristicos)
   resenas: Resena[];
 }
