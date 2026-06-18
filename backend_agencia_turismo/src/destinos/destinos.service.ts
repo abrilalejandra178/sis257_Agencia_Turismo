@@ -4,6 +4,9 @@ import {
 } from '@nestjs/common';
 import { Destino } from './entities/destino.entity';
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
 import { ImagenDestino } from './entities/imagen-destino.entity';
 import { In, Repository } from 'typeorm';
 =======
@@ -19,6 +22,20 @@ export class DestinosService {
     private destinosRepository: Repository<Destino>,
 
 <<<<<<< HEAD
+  // CAMBIO (requisito #1): convierte el arreglo de URLs recibido en el DTO
+  // a instancias de ImagenDestino para que TypeORM pueda guardarlas (y
+  // eliminar las que ya no estén) junto con el destino.
+  private mapearImagenes(urls?: string[]): ImagenDestino[] | undefined {
+    if (urls === undefined) return undefined;
+    return urls
+      .filter(url => !!url && url.trim() !== '')
+      .map(url => {
+        const imagen = new ImagenDestino();
+        imagen.url = url.trim();
+        return imagen;
+      });
+  }
+
   // CAMBIO (requisito #1): convierte el arreglo de URLs recibido en el DTO
   // a instancias de ImagenDestino para que TypeORM pueda guardarlas (y
   // eliminar las que ya no estén) junto con el destino.
@@ -86,12 +103,16 @@ export class DestinosService {
     return this.destinosRepository.find({
       relations: { imagenes: true },
 <<<<<<< HEAD
+<<<<<<< HEAD
       order: { nombre: 'ASC' },
 =======
       order: {
         nombre: 'ASC',
       },
 >>>>>>> 8fa77c4a918b398dfb46fc35998ab05891a97e9e
+=======
+      order: { nombre: 'ASC' },
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
     });
   }
 
@@ -104,6 +125,9 @@ export class DestinosService {
       relations: { imagenes: true },
     });
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
     if (!destino) throw new NotFoundException('El destino no existe');
 =======
 
@@ -121,6 +145,9 @@ export class DestinosService {
   async update(id: number, updateData: any): Promise<Destino> {
     const destino = await this.findOne(id);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
     const { imagenes, ...resto } = updateDestinoDto;
     Object.assign(destino, resto);
     const imagenesMapeadas = this.mapearImagenes(imagenes);

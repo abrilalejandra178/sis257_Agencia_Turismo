@@ -29,6 +29,9 @@ export class Destino {
   paquetesTuristicos: PaquetesTuristico[];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
   // CAMBIO (requisito #1): galería de imágenes adicionales del destino.
   // orphanedRowAction: 'delete' permite que al guardar un nuevo arreglo de
   // imágenes, las que ya no estén en la lista se eliminen automáticamente.

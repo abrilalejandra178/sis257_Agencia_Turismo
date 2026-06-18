@@ -36,6 +36,7 @@ export class CreateDestinoDto {
   @IsArray({ message: 'Las imágenes deben enviarse como un arreglo' })
   @IsString({ each: true, message: 'Cada imagen debe ser una cadena de texto (URL)' })
   readonly imagenes?: string[];
+<<<<<<< HEAD
 =======
   @ApiProperty({
     type: [Object],
@@ -47,4 +48,6 @@ export class CreateDestinoDto {
   })
   readonly imagenes: { urlImagen: string }[];
 >>>>>>> 8fa77c4a918b398dfb46fc35998ab05891a97e9e
+=======
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
 }

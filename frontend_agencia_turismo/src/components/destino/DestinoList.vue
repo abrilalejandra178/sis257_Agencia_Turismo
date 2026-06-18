@@ -94,7 +94,10 @@ defineExpose({ obtenerLista })
               @click="abrirGaleria(data)"
             />
           </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">
