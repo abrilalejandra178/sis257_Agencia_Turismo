@@ -1,0 +1,12 @@
+export enum TipoTransporte {
+  AVION = 'AVION',
+  BUS = 'BUS',
+  MINIBUS = 'MINIBUS',
+  CAMIONETA = 'CAMIONETA',
+  BARCO = 'BARCO',
+  TREN = 'TREN',
+  PRIVADO = 'PRIVADO',
+  MOTORIZADO = 'MOTORIZADO',
+  BICICLETA = 'BICICLETA',
+  CAMINATA = 'CAMINATA',
+}
