@@ -13,6 +13,8 @@ export interface Reserva {
   adelanto: number
   saldoPendiente: number
   estado: string
+  // CAMBIO (requisito #2): motivo de cancelación / baja de la reserva
+  motivoCancelacion?: string
   idUsuario: number
   idPaquete: number
   usuario: Usuario

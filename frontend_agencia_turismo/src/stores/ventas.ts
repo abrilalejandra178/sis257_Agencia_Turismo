@@ -138,11 +138,18 @@ export const useVentasStore = defineStore('ventas', {
       }
     },
 
-    async confirmarPago(idReserva: number, metodoPago: string, referenciaPago?: string) {
+    async confirmarPago(
+      idReserva: number,
+      metodoPago: string,
+      referenciaPago?: string,
+      // CAMBIO (requisito #5): monto que entrega el cliente, para calcular el cambio
+      montoRecibido?: number,
+    ) {
       try {
         const payload = {
           metodoPago,
           referenciaPago,
+          montoRecibido,
         }
 
         const response = await http.post(`/ventas/${idReserva}/confirmar-pago`, payload)
@@ -177,12 +184,25 @@ export const useVentasStore = defineStore('ventas', {
       }
     },
 
-    async cancelarReserva(idReserva: number) {
+    // CAMBIO (requisito #2): se envía el motivo de la cancelación
+    async cancelarReserva(idReserva: number, motivo?: string) {
       try {
-        const response = await http.patch(`/ventas/${idReserva}/cancelar`, {})
+        const response = await http.patch(`/ventas/${idReserva}/cancelar`, { motivo })
         return response.data
       } catch (error) {
         console.error('Error cancelando reserva:', error)
+        throw error
+      }
+    },
+
+    // CAMBIO (requisito #7): búsqueda de cliente para saber si ya es
+    // un cliente frecuente (con reservas anteriores) antes de venderle.
+    async buscarClienteFrecuente(query: string) {
+      try {
+        const response = await http.get('/ventas/buscar-cliente', { params: { query } })
+        return response.data as { totalReservas: number; esClienteFrecuente: boolean; reservas: any[] }
+      } catch (error) {
+        console.error('Error buscando cliente:', error)
         throw error
       }
     },

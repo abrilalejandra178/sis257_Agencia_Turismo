@@ -26,15 +26,55 @@ const dialogVisible = computed({
   },
 })
 
+// CAMBIO (requisito #6): no se permite elegir una fecha de pago anterior a hoy
+const fechaMinima = new Date().toISOString().slice(0, 10)
+
+// Opciones de los selects, alineadas con los enums del backend (MetodoPago / EstadoPago)
+const opcionesMetodoPago = [
+  { label: 'Efectivo', value: 'efectivo' },
+  { label: 'Tarjeta de crédito', value: 'tarjeta_credito' },
+  { label: 'Tarjeta de débito', value: 'tarjeta_debito' },
+  { label: 'Transferencia', value: 'transferencia' },
+  { label: 'Cheque', value: 'cheque' },
+]
+const opcionesEstadoPago = [
+  { label: 'Pendiente', value: 'pendiente' },
+  { label: 'Procesando', value: 'procesando' },
+  { label: 'Completado', value: 'completado' },
+  { label: 'Fallido', value: 'fallido' },
+  { label: 'Reembolsado', value: 'reembolsado' },
+]
+
 const reservas = ref<Reserva[]>([])
 const pago = ref<Pago>({ ...props.pago })
+
+// CAMBIO (requisito #5): monto que el cliente entrega físicamente (solo
+// tiene sentido para pagos en efectivo). Se usa para calcular el cambio.
+const montoRecibido = ref<number | null>(null)
 
 watch(
   () => props.pago,
   (newVal) => {
     pago.value = { ...newVal }
+    montoRecibido.value = newVal?.montoRecibido ?? null
   },
 )
+
+// CAMBIO (requisito #5): cambio/vuelto a entregar si el cliente paga con
+// un monto más elevado que el monto a cobrar.
+const cambioCalculado = computed(() => {
+  const monto = Number(pago.value.monto) || 0
+  const recibido = Number(montoRecibido.value) || 0
+  if (recibido <= monto) return 0
+  return recibido - monto
+})
+
+const faltaParaCubrir = computed(() => {
+  const monto = Number(pago.value.monto) || 0
+  const recibido = Number(montoRecibido.value) || 0
+  if (!montoRecibido.value || recibido >= monto) return 0
+  return monto - recibido
+})
 
 async function cargarDatos() {
   reservas.value = await http.get('reservas').then((res) => res.data)
@@ -48,6 +88,9 @@ async function handleSave() {
       metodoPago: pago.value.metodoPago,
       estadoPago: pago.value.estadoPago,
       idReserva: pago.value.idReserva,
+      // CAMBIO (requisito #5): se envía el monto recibido para que el
+      // backend calcule y guarde el cambio correspondiente.
+      montoRecibido: montoRecibido.value || undefined,
     }
     if (props.modoEdicion) {
       await http.patch(`${ENDPOINT}/${pago.value.id}`, body)
@@ -56,6 +99,7 @@ async function handleSave() {
     }
     emit('guardar')
     pago.value = {} as Pago
+    montoRecibido.value = null
     dialogVisible.value = false
   } catch (error: any) {
     alert(error?.response?.data?.message)
@@ -69,8 +113,10 @@ watch(
       await cargarDatos()
       if (props.pago?.id) {
         pago.value = { ...props.pago }
+        montoRecibido.value = props.pago.montoRecibido ?? null
       } else {
         pago.value = {} as Pago
+        montoRecibido.value = null
       }
     }
   },
@@ -96,7 +142,7 @@ watch(
         />
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="monto" class="font-semibold w-4">Monto</label>
+        <label for="monto" class="font-semibold w-4">Monto a cobrar</label>
         <InputNumber
           id="monto"
           v-model="pago.monto"
@@ -105,17 +151,58 @@ watch(
           :minFractionDigits="2"
         />
       </div>
+
+      <!-- CAMBIO (requisito #5): monto recibido del cliente y cálculo de cambio -->
+      <div class="flex items-center gap-4 mb-2">
+        <label for="montoRecibido" class="font-semibold w-4">Monto recibido</label>
+        <InputNumber
+          id="montoRecibido"
+          v-model="montoRecibido"
+          class="flex-auto"
+          :min="0"
+          :minFractionDigits="2"
+          placeholder="Ej: si cobra Bs 100 y paga con Bs 150"
+        />
+      </div>
+      <div v-if="cambioCalculado > 0" class="mb-4 text-sm font-semibold text-green-600">
+        Cambio a entregar al cliente: Bs {{ cambioCalculado.toFixed(2) }}
+      </div>
+      <div v-else-if="faltaParaCubrir > 0" class="mb-4 text-sm font-semibold text-red-600">
+        El monto recibido no cubre el total. Falta Bs {{ faltaParaCubrir.toFixed(2) }}
+      </div>
+      <div v-else class="mb-4"></div>
+
       <div class="flex items-center gap-4 mb-4">
         <label for="fechaPago" class="font-semibold w-4">Fecha Pago</label>
-        <InputText id="fechaPago" v-model="pago.fechaPago as any" type="date" class="flex-auto" />
+        <InputText
+          id="fechaPago"
+          v-model="pago.fechaPago as any"
+          type="date"
+          class="flex-auto"
+          :min="fechaMinima"
+        />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="metodoPago" class="font-semibold w-4">Método Pago</label>
-        <InputText id="metodoPago" v-model="pago.metodoPago" class="flex-auto" maxlength="100" />
+        <Select
+          id="metodoPago"
+          v-model="pago.metodoPago"
+          :options="opcionesMetodoPago"
+          optionLabel="label"
+          optionValue="value"
+          class="flex-auto"
+        />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="estadoPago" class="font-semibold w-4">Estado Pago</label>
-        <InputText id="estadoPago" v-model="pago.estadoPago" class="flex-auto" maxlength="100" />
+        <Select
+          id="estadoPago"
+          v-model="pago.estadoPago"
+          :options="opcionesEstadoPago"
+          optionLabel="label"
+          optionValue="value"
+          class="flex-auto"
+        />
       </div>
       <div class="flex justify-end gap-2">
         <Button

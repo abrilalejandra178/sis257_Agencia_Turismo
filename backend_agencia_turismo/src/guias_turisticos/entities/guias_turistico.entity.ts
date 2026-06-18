@@ -29,7 +29,9 @@ export class GuiaTuristico {
   @Column('varchar', { length: 10000 })
   experiencia: string;
 
-  @Column('decimal', { precision: 10, scale: 2, name: 'calificacion' })
+  // CAMBIO (requisito #4): la calificación del guía ahora es un entero
+  // del 1 al 5 (sistema de estrellas), antes era decimal sin límite real.
+  @Column('int', { name: 'calificacion' })
   calificación: number;
 
   @CreateDateColumn({ name: 'fecha_creacion' })

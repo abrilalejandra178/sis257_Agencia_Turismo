@@ -74,6 +74,15 @@ defineExpose({ obtenerLista })
       <Column field="monto" header="Monto" sortable>
         <template #body="{ data }">{{ Number(data.monto).toFixed(2) }}</template>
       </Column>
+      <!-- CAMBIO (requisito #5): se muestra el cambio/vuelto entregado al cliente -->
+      <Column field="cambio" header="Cambio" sortable>
+        <template #body="{ data }">
+          <span v-if="Number(data.cambio) > 0" class="text-green-600 font-semibold">
+            Bs {{ Number(data.cambio).toFixed(2) }}
+          </span>
+          <span v-else class="text-gray-400">—</span>
+        </template>
+      </Column>
       <Column field="fechaPago" header="Fecha Pago" sortable />
       <Column field="metodoPago" header="Método Pago" sortable />
       <Column field="estadoPago" header="Estado Pago" sortable />

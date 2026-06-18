@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsDefined, IsInt, IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
+import { IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
 
 export class CreatePaquetesTuristicoDto {
   @ApiProperty({ example: 'Tour Salar de Uyuni 3 Días' })
@@ -30,14 +30,18 @@ export class CreatePaquetesTuristicoDto {
   @IsInt({ message: 'La capacidad máxima debe ser un número entero' })
   readonly capacidadMaxima: number;
 
-  @ApiProperty({ example: 'Sí, 2 noches en hotel de sal' })
+  // CAMBIO (requisito #3): ahora es un select con solo dos opciones,
+  // antes era un campo de texto libre.
+  @ApiProperty({ example: 'Sí', enum: ['Sí', 'No'] })
   @IsNotEmpty({ message: 'Incluye hospedaje es obligatorio' })
-  @IsString({ message: 'Incluye hospedaje debe ser una cadena de texto' })
+  @IsIn(['Sí', 'No'], { message: 'Incluye hospedaje debe ser "Sí" o "No"' })
   readonly incluyeHospedaje: string;
 
-  @ApiProperty({ example: 'Desayuno, almuerzo y cena incluidos' })
+  // CAMBIO (requisito #3): ahora es un select con solo dos opciones,
+  // antes era un campo de texto libre.
+  @ApiProperty({ example: 'Sí', enum: ['Sí', 'No'] })
   @IsNotEmpty({ message: 'Incluye alimentación es obligatorio' })
-  @IsString({ message: 'Incluye alimentación debe ser una cadena de texto' })
+  @IsIn(['Sí', 'No'], { message: 'Incluye alimentación debe ser "Sí" o "No"' })
   readonly incluyeAlimentación: string;
 
   @ApiProperty({ example: 1 })

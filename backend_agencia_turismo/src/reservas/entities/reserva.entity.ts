@@ -64,6 +64,11 @@ export class Reserva {
   @Column('varchar', { length: 255, name: 'notas', nullable: true })
   notas?: string;
 
+  // CAMBIO (requisito #2): motivo por el cual una reserva fue cancelada
+  // o dada de baja (eliminada). Se guarda al cancelar o al eliminar.
+  @Column('varchar', { length: 255, name: 'motivo_cancelacion', nullable: true })
+  motivoCancelacion?: string;
+
   @Column('int', { name: 'id_usuario', nullable: true })
   idUsuario: number;
 

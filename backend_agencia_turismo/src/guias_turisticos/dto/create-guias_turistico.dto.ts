@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString, Matches, MaxLength } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
 
 export class CreateGuiasTuristicoDto {
   @ApiProperty({ example: 'Carlos' })
@@ -39,8 +39,11 @@ export class CreateGuiasTuristicoDto {
   @Transform(({ value }): string | undefined => (typeof value === 'string' ? value.trim() : value))
   readonly experiencia: string;
 
-  @ApiProperty({ example: 4.8 })
+  // CAMBIO (requisito #4): calificación del guía del 1 al 5 (estrellas).
+  @ApiProperty({ example: 4, minimum: 1, maximum: 5 })
   @IsNotEmpty({ message: 'La calificación es obligatoria' })
-  @IsNumber({}, { message: 'La calificación debe ser un número' })
+  @IsInt({ message: 'La calificación debe ser un número entero' })
+  @Min(1, { message: 'La calificación mínima es 1' })
+  @Max(5, { message: 'La calificación máxima es 5' })
   readonly calificación: number;
 }

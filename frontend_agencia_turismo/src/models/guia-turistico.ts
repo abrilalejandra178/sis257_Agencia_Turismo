@@ -5,5 +5,6 @@ export interface GuiaTuristico {
   teléfono: string
   idioma: string
   experiencia: string
-  calificación: number
+  // CAMBIO (requisito #4): calificación entera del 1 al 5 (estrellas)
+  calificacion: number
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GuiaTuristico } from '@/models/guia-turistico'
 import http from '@/plugins/axios'
-import { Column, DataTable, Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
+import { Column, DataTable, Dialog, InputGroup, InputGroupAddon, InputText, Rating } from 'primevue'
 import Button from 'primevue/button'
 import { computed, onMounted, ref } from 'vue'
 
@@ -23,6 +23,18 @@ function emitirEdicion(guia: GuiaTuristico) {
 function mostrarEliminarConfirm(guia: GuiaTuristico) {
   guiaDelete.value = guia
   mostrarConfirmDialog.value = true
+}
+
+// Permite calificar directo desde la tabla, sin abrir el diálogo de edición.
+async function actualizarCalificacion(guia: GuiaTuristico, nuevaCalificacion: number) {
+  const calificacionAnterior = guia.calificacion
+  guia.calificacion = nuevaCalificacion // actualiza la vista al toque
+  try {
+    await http.patch(`${ENDPOINT}/${guia.id}`, { calificacion: nuevaCalificacion })
+  } catch (error: any) {
+    guia.calificacion = calificacionAnterior // revierte si el guardado falla
+    alert(error?.response?.data?.message)
+  }
 }
 
 async function eliminar() {
@@ -73,10 +85,9 @@ defineExpose({ obtenerLista })
       <Column field="teléfono" header="Teléfono" sortable />
       <Column field="idioma" header="Idioma" sortable />
       <Column field="experiencia" header="Experiencia" sortable />
-      <Column field="calificación" header="Calificación" sortable>
+      <Column field="calificacion" header="Calificación" sortable>
         <template #body="{ data }">
-          <span class="text-orange-500 font-bold">{{ data.calificación }}</span>
-          <i class="pi pi-star-fill text-yellow-400 ml-1 text-xs"></i>
+          <Rating :modelValue="data.calificacion" :stars="5" @update:modelValue="(valor) => actualizarCalificacion(data, valor)" />
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">

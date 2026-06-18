@@ -12,6 +12,10 @@ const destinoDelete = ref<Destino | null>(null)
 const mostrarConfirmDialog = ref<boolean>(false)
 const busqueda = ref<string>('')
 
+// CAMBIO (requisito #1): estado para mostrar la galería de imágenes de un destino
+const mostrarGaleria = ref<boolean>(false)
+const destinoGaleria = ref<Destino | null>(null)
+
 async function obtenerLista() {
   destinos.value = await http.get(ENDPOINT).then((response) => response.data)
 }
@@ -23,6 +27,11 @@ function emitirEdicion(destino: Destino) {
 function mostrarEliminarConfirm(destino: Destino) {
   destinoDelete.value = destino
   mostrarConfirmDialog.value = true
+}
+
+function abrirGaleria(destino: Destino) {
+  destinoGaleria.value = destino
+  mostrarGaleria.value = true
 }
 
 async function eliminar() {
@@ -70,10 +79,21 @@ defineExpose({ obtenerLista })
       <Column field="nombre" header="Nombre" sortable />
       <Column field="descripción" header="Descripción" sortable />
       <Column field="ubicación" header="Ubicación" sortable />
-      <Column field="imagen" header="Imagen" sortable>
+      <Column header="Imágenes" sortable>
         <template #body="{ data }">
-          <img v-if="data.imagen" :src="data.imagen" alt="Destino" style="width:80px;height:60px;object-fit:cover;border-radius:4px;" />
-          <span v-else class="text-gray-400">—</span>
+          <div class="flex items-center gap-2">
+            <img v-if="data.imagen" :src="data.imagen" alt="Destino" style="width:80px;height:60px;object-fit:cover;border-radius:4px;" />
+            <span v-else class="text-gray-400">—</span>
+            <Button
+              v-if="data.imagenes?.length"
+              type="button"
+              :label="`+${data.imagenes.length} foto${data.imagenes.length > 1 ? 's' : ''}`"
+              icon="pi pi-images"
+              text
+              size="small"
+              @click="abrirGaleria(data)"
+            />
+          </div>
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">
@@ -91,6 +111,25 @@ defineExpose({ obtenerLista })
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" severity="secondary" @click="mostrarConfirmDialog = false" />
         <Button type="button" label="Eliminar" @click="eliminar" />
+      </div>
+    </Dialog>
+
+    <!-- CAMBIO (requisito #1): galería con todas las imágenes del destino -->
+    <Dialog v-model:visible="mostrarGaleria" :header="`Galería: ${destinoGaleria?.nombre ?? ''}`" :style="{ width: '40rem' }">
+      <div class="flex flex-wrap gap-3">
+        <img
+          v-if="destinoGaleria?.imagen"
+          :src="destinoGaleria.imagen"
+          alt="Imagen principal"
+          style="width:160px;height:120px;object-fit:cover;border-radius:6px;"
+        />
+        <img
+          v-for="img in destinoGaleria?.imagenes ?? []"
+          :key="img.id ?? img.url"
+          :src="img.url"
+          alt="Imagen del destino"
+          style="width:160px;height:120px;object-fit:cover;border-radius:6px;"
+        />
       </div>
     </Dialog>
   </div>

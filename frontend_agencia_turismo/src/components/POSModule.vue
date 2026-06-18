@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useVentasStore } from '@/stores/ventas'
 import { usePaquetesStore } from '@/stores/paquetes'
 
@@ -18,8 +18,19 @@ const metodoPago = ref('efectivo')
 const referenciaPago = ref('')
 const idVentaCompletada = ref<number | null>(null)
 
+// CAMBIO (requisito #5): monto que entrega el cliente en efectivo, para
+// calcular el cambio/vuelto cuando paga con un monto más elevado.
+const montoRecibido = ref<number | null>(null)
+
+// CAMBIO (requisito #6): no se permite elegir una fecha de viaje pasada
+const fechaMinima = new Date().toISOString().slice(0, 10)
+
 // Fecha de viaje
 const fechaViaje = ref('')
+
+// CAMBIO (requisito #7): resultado de la búsqueda de cliente frecuente
+const buscandoCliente = ref(false)
+const resultadoCliente = ref<{ totalReservas: number; esClienteFrecuente: boolean } | null>(null)
 
 const destinosUnicos = computed(() => {
   const destinos = new Set<string>()
@@ -46,12 +57,39 @@ const paquetesFiltrados = computed(() => {
 
 const totalTicket = computed(() => ventasStore.subtotal)
 
+// CAMBIO (requisito #5): cambio/vuelto a entregar si el cliente paga en
+// efectivo con un monto mayor al total del ticket.
+const cambioCalculado = computed(() => {
+  if (metodoPago.value !== 'efectivo') return 0
+  const recibido = Number(montoRecibido.value) || 0
+  if (recibido <= totalTicket.value) return 0
+  return recibido - totalTicket.value
+})
+
+const faltaParaCubrirEfectivo = computed(() => {
+  if (metodoPago.value !== 'efectivo' || !montoRecibido.value) return 0
+  const recibido = Number(montoRecibido.value) || 0
+  if (recibido >= totalTicket.value) return 0
+  return totalTicket.value - recibido
+})
+
+// Si el método de pago no es efectivo, no tiene sentido pedir "monto recibido"
+const pagoEfectivoIncompleto = computed(() => {
+  return metodoPago.value === 'efectivo' && faltaParaCubrirEfectivo.value > 0
+})
+
 onMounted(async () => {
   try {
     await paquetesStore.obtenerPaquetes()
   } catch (err) {
     error.value = 'Error cargando paquetes'
   }
+})
+
+// CAMBIO (requisito #7): si cambia el nombre o teléfono, se invalida la
+// búsqueda anterior para no mostrar un resultado desactualizado.
+watch([() => ventasStore.cliente.nombre, () => ventasStore.cliente.telefono], () => {
+  resultadoCliente.value = null
 })
 
 function agregarPaquete(paquete: any) {
@@ -68,6 +106,25 @@ function agregarPaquete(paquete: any) {
   }
   exito.value = `${paquete.nombre} agregado`
   setTimeout(() => (exito.value = ''), 1500)
+}
+
+// CAMBIO (requisito #7): busca por nombre o teléfono si el cliente ya
+// tiene reservas anteriores (cliente frecuente) antes de venderle.
+async function buscarCliente() {
+  const query = (ventasStore.cliente.nombre || ventasStore.cliente.telefono || '').trim()
+  if (!query) {
+    error.value = 'Ingrese el nombre o teléfono del cliente para buscar'
+    setTimeout(() => (error.value = ''), 3000)
+    return
+  }
+  buscandoCliente.value = true
+  try {
+    resultadoCliente.value = await ventasStore.buscarClienteFrecuente(query)
+  } catch (err) {
+    resultadoCliente.value = null
+  } finally {
+    buscandoCliente.value = false
+  }
 }
 
 function incrementarCantidad(idPaquete: number) {
@@ -135,7 +192,9 @@ async function confirmarPago() {
     await ventasStore.confirmarPago(
       idVentaCompletada.value,
       metodoPago.value,
-      referenciaPago.value
+      referenciaPago.value,
+      // CAMBIO (requisito #5): se envía el monto recibido en efectivo
+      metodoPago.value === 'efectivo' ? montoRecibido.value || undefined : undefined,
     )
 
     paso.value = 'confirmacion'
@@ -153,6 +212,8 @@ function nuevaVenta() {
   referenciaPago.value = ''
   idVentaCompletada.value = null
   fechaViaje.value = ''
+  montoRecibido.value = null
+  resultadoCliente.value = null
 }
 
 const metodosPago = [
@@ -263,11 +324,32 @@ const estadosReserva = {
           <div class="form-grid">
             <div class="form-group">
               <label>Nombre completo *</label>
-              <input v-model="ventasStore.cliente.nombre" type="text" placeholder="Ej: Juan Pérez" />
+              <div class="input-with-button">
+                <input v-model="ventasStore.cliente.nombre" type="text" placeholder="Ej: Juan Pérez" />
+                <!-- CAMBIO (requisito #7): búsqueda de cliente frecuente -->
+                <button
+                  type="button"
+                  class="btn-buscar-cliente"
+                  title="Ver si ya es cliente frecuente"
+                  @click="buscarCliente"
+                  :disabled="buscandoCliente"
+                >
+                  <i class="pi pi-search"></i>
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label>Teléfono</label>
               <input v-model="ventasStore.cliente.telefono" type="tel" placeholder="+591 71234567" />
+            </div>
+            <div class="form-group full" v-if="resultadoCliente">
+              <span v-if="resultadoCliente.esClienteFrecuente" class="badge-cliente badge-frecuente">
+                <i class="pi pi-star-fill"></i>
+                Cliente frecuente ({{ resultadoCliente.totalReservas }} reservas anteriores)
+              </span>
+              <span v-else class="badge-cliente badge-nuevo">
+                Cliente nuevo (sin reservas anteriores)
+              </span>
             </div>
             <div class="form-group">
               <label>Email</label>
@@ -275,7 +357,8 @@ const estadosReserva = {
             </div>
             <div class="form-group">
               <label>Fecha de viaje</label>
-              <input v-model="fechaViaje" type="date" />
+              <!-- CAMBIO (requisito #6): no se permite elegir una fecha pasada -->
+              <input v-model="fechaViaje" type="date" :min="fechaMinima" />
             </div>
             <div class="form-group full">
               <label>Notas adicionales</label>
@@ -321,6 +404,26 @@ const estadosReserva = {
               <input v-model="referenciaPago" type="text" placeholder="N° de transacción" />
             </div>
 
+            <!-- CAMBIO (requisito #5): monto recibido y cambio a devolver -->
+            <div v-if="metodoPago === 'efectivo'" class="form-group">
+              <label>Monto recibido del cliente</label>
+              <input
+                v-model.number="montoRecibido"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Ej: si cobra Bs 100 y paga con Bs 150"
+              />
+            </div>
+            <div v-if="metodoPago === 'efectivo' && cambioCalculado > 0" class="cambio-box">
+              <span>Cambio a entregar:</span>
+              <strong>Bs {{ cambioCalculado.toFixed(2) }}</strong>
+            </div>
+            <div v-if="pagoEfectivoIncompleto" class="cambio-box cambio-insuficiente">
+              <span>Falta para cubrir el total:</span>
+              <strong>Bs {{ faltaParaCubrirEfectivo.toFixed(2) }}</strong>
+            </div>
+
             <div class="total-pago-box">
               <span>Total a Pagar:</span>
               <strong>Bs {{ totalTicket.toFixed(2) }}</strong>
@@ -331,7 +434,11 @@ const estadosReserva = {
             <button class="btn btn-secondary" @click="paso = 'cliente'">
               <i class="pi pi-arrow-left"></i> Atrás
             </button>
-            <button class="btn btn-success" @click="confirmarPago" :disabled="cargando">
+            <button
+              class="btn btn-success"
+              @click="confirmarPago"
+              :disabled="cargando || pagoEfectivoIncompleto"
+            >
               <i class="pi pi-check"></i>
               {{ cargando ? 'Procesando...' : 'Confirmar Pago Total' }}
             </button>
@@ -1120,6 +1227,91 @@ const estadosReserva = {
 .total-pago-box strong {
   font-size: 1.75rem;
   color: #f15d30;
+}
+
+/* CAMBIO (requisito #5): caja de cambio a entregar / monto faltante */
+.cambio-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  border-radius: 0.625rem;
+  font-weight: 600;
+}
+
+.cambio-box span {
+  color: #065f46;
+}
+
+.cambio-box strong {
+  color: #059669;
+  font-size: 1.125rem;
+}
+
+.cambio-box:not(.cambio-insuficiente) {
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+}
+
+.cambio-box.cambio-insuficiente {
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+}
+
+.cambio-box.cambio-insuficiente span,
+.cambio-box.cambio-insuficiente strong {
+  color: #dc2626;
+}
+
+/* CAMBIO (requisito #7): búsqueda de cliente frecuente */
+.input-with-button {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-with-button input {
+  flex: 1;
+}
+
+.btn-buscar-cliente {
+  width: 40px;
+  flex-shrink: 0;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: white;
+  color: #f15d30;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-buscar-cliente:hover:not(:disabled) {
+  border-color: #f15d30;
+  background: #fff5f2;
+}
+
+.btn-buscar-cliente:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.badge-cliente {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.badge-frecuente {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.badge-nuevo {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 /* Confirmación */

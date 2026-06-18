@@ -1,4 +1,5 @@
 import { PaquetesTuristico } from 'src/paquetes_turisticos/entities/paquetes_turistico.entity';
+import { ImagenDestino } from './imagen-destino.entity';
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('destinos')
@@ -29,4 +30,13 @@ export class Destino {
 
   @OneToMany(() => PaquetesTuristico, paquete => paquete.destino) 
   paquetesTuristicos: PaquetesTuristico[];
+
+  // CAMBIO (requisito #1): galería de imágenes adicionales del destino.
+  // orphanedRowAction: 'delete' permite que al guardar un nuevo arreglo de
+  // imágenes, las que ya no estén en la lista se eliminen automáticamente.
+  @OneToMany(() => ImagenDestino, imagen => imagen.destino, {
+    cascade: true,
+    orphanedRowAction: 'delete',
+  })
+  imagenes: ImagenDestino[];
 }

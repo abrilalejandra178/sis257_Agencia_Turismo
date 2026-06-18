@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Reserva } from '@/models/reserva'
 import http from '@/plugins/axios'
-import { Column, DataTable, Dialog, InputGroup, InputGroupAddon, InputText } from 'primevue'
+import { Column, DataTable, Dialog, InputGroup, InputGroupAddon, InputText, Textarea } from 'primevue'
 import Button from 'primevue/button'
 import { computed, onMounted, ref } from 'vue'
 
@@ -11,6 +11,9 @@ const emit = defineEmits(['edit'])
 const reservaDelete = ref<Reserva | null>(null)
 const mostrarConfirmDialog = ref<boolean>(false)
 const busqueda = ref<string>('')
+
+// CAMBIO (requisito #2): motivo de baja que se debe indicar al eliminar
+const motivoBaja = ref<string>('')
 
 async function obtenerLista() {
   reservas.value = await http.get(ENDPOINT).then((response) => response.data)
@@ -22,11 +25,19 @@ function emitirEdicion(reserva: Reserva) {
 
 function mostrarEliminarConfirm(reserva: Reserva) {
   reservaDelete.value = reserva
+  motivoBaja.value = ''
   mostrarConfirmDialog.value = true
 }
 
 async function eliminar() {
-  await http.delete(`${ENDPOINT}/${reservaDelete.value?.id}`)
+  // CAMBIO (requisito #2): se exige el motivo antes de dar de baja la reserva
+  if (!motivoBaja.value.trim()) {
+    alert('Debe indicar el motivo de la baja/cancelación')
+    return
+  }
+  await http.delete(`${ENDPOINT}/${reservaDelete.value?.id}`, {
+    data: { motivo: motivoBaja.value.trim() },
+  })
   obtenerLista()
   mostrarConfirmDialog.value = false
 }
@@ -80,16 +91,25 @@ defineExpose({ obtenerLista })
       </Column>
       <Column field="estado" header="Estado" sortable>
         <template #body="{ data }">
-          <span class="px-2 py-1 rounded-full text-xs font-semibold capitalize"
+          <span
+            class="px-2 py-1 rounded-full text-xs font-semibold capitalize"
+            :title="data.estado === 'cancelada' ? data.motivoCancelacion : ''"
             :class="{
               'bg-green-100 text-green-700': data.estado === 'pagada',
               'bg-blue-100 text-blue-700': data.estado === 'confirmada',
               'bg-yellow-100 text-yellow-700': data.estado === 'pendiente',
               'bg-red-100 text-red-700': data.estado === 'cancelada',
               'bg-gray-100 text-gray-700': data.estado === 'completada',
-            }">
+            }"
+          >
             {{ data.estado }}
           </span>
+          <!-- CAMBIO (requisito #2): se muestra el motivo de la cancelación -->
+          <i
+            v-if="data.estado === 'cancelada' && data.motivoCancelacion"
+            class="pi pi-info-circle ml-1 text-gray-400"
+            :title="data.motivoCancelacion"
+          ></i>
         </template>
       </Column>
       <Column field="fechaReserva" header="Fecha Reserva" sortable>
@@ -109,8 +129,20 @@ defineExpose({ obtenerLista })
         <div class="p-4 text-center text-gray-500">No se encontraron reservas.</div>
       </template>
     </DataTable>
-    <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación" :style="{ width: '25rem' }">
-      <p>¿Estás seguro de que deseas eliminar este registro?</p>
+    <!-- CAMBIO (requisito #2): se solicita el motivo antes de dar de baja la reserva -->
+    <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación / Baja" :style="{ width: '28rem' }">
+      <p>¿Estás seguro de que deseas dar de baja esta reserva?</p>
+      <div class="mb-2">
+        <label for="motivoBaja" class="font-semibold block mb-2">Motivo de la baja/cancelación *</label>
+        <Textarea
+          id="motivoBaja"
+          v-model="motivoBaja"
+          class="w-full"
+          rows="3"
+          maxlength="255"
+          placeholder="Ej: el cliente canceló el viaje, error en el registro, etc."
+        />
+      </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" severity="secondary" @click="mostrarConfirmDialog = false" />
         <Button type="button" label="Eliminar" @click="eliminar" />

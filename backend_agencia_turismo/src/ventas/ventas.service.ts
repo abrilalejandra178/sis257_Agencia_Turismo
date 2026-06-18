@@ -1,10 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Reserva, EstadoReserva } from 'src/reservas/entities/reserva.entity';
 import { Pago, EstadoPago } from 'src/pagos/entities/pago.entity';
 import { PaquetesTuristico } from 'src/paquetes_turisticos/entities/paquetes_turistico.entity';
 import { CrearVentaDto, ConfirmarPagoDto } from './dto/crear-venta.dto';
+import { esFechaAnterierAHoy } from 'src/common/utils/fecha.util';
 
 @Injectable()
 export class VentasService {
@@ -22,6 +23,12 @@ export class VentasService {
 
     if (!items || items.length === 0) {
       throw new BadRequestException('Debe agregar al menos un paquete a la venta');
+    }
+
+    // CAMBIO (requisito #6): la fecha de viaje (si se especifica) no
+    // puede ser anterior al día de hoy.
+    if (fechaViaje && esFechaAnterierAHoy(fechaViaje)) {
+      throw new BadRequestException('La fecha de viaje no puede ser anterior al día de hoy');
     }
 
     let total = 0;
@@ -97,10 +104,17 @@ export class VentasService {
   async confirmarPago(idReserva: number, confirmarPagoDto: ConfirmarPagoDto): Promise<Pago> {
     const reserva = await this.obtenerReserva(idReserva);
 
-    const { metodoPago, referenciaPago } = confirmarPagoDto;
+    const { metodoPago, referenciaPago, montoRecibido } = confirmarPagoDto;
 
     // Pago total directo - siempre paga el monto completo de la reserva
     const montoTotal = Number(reserva.total);
+
+    // CAMBIO (requisito #5): si el cliente entrega un monto mayor al
+    // total a pagar (por ejemplo en efectivo), se calcula el cambio.
+    let cambio = 0;
+    if (montoRecibido && montoRecibido > montoTotal) {
+      cambio = Number((montoRecibido - montoTotal).toFixed(2));
+    }
 
     // Crear el pago
     const pago = new Pago();
@@ -110,6 +124,8 @@ export class VentasService {
     pago.estadoPago = EstadoPago.COMPLETADO;
     pago.referenciaPago = referenciaPago;
     pago.idReserva = idReserva;
+    pago.montoRecibido = montoRecibido;
+    pago.cambio = cambio;
 
     const pagoGuardado = await this.pagoRepository.save(pago);
 
@@ -181,14 +197,49 @@ export class VentasService {
     };
   }
 
-  async cancelarReserva(idReserva: number): Promise<Reserva> {
+  async cancelarReserva(idReserva: number, motivo?: string): Promise<Reserva> {
     const reserva = await this.obtenerReserva(idReserva);
 
     if (reserva.estado === EstadoReserva.CANCELADA) {
       throw new BadRequestException('Esta reserva ya fue cancelada');
     }
 
+    // CAMBIO (requisito #2): se guarda el motivo de la cancelación.
     reserva.estado = EstadoReserva.CANCELADA;
+    if (motivo) {
+      reserva.motivoCancelacion = motivo;
+    }
     return this.reservaRepository.save(reserva);
+  }
+
+  // CAMBIO (requisito #7): búsqueda rápida de cliente desde el POS para
+  // saber si ya es un cliente frecuente antes de registrar la venta.
+  async buscarClienteFrecuente(query: string): Promise<{
+    totalReservas: number;
+    esClienteFrecuente: boolean;
+    reservas: Reserva[];
+  }> {
+    const UMBRAL_CLIENTE_FRECUENTE = 2;
+    const texto = query?.trim();
+
+    if (!texto) {
+      return { totalReservas: 0, esClienteFrecuente: false, reservas: [] };
+    }
+
+    const reservas = await this.reservaRepository.find({
+      where: [
+        { nombreCliente: ILike(`%${texto}%`) },
+        { telefonoCliente: ILike(`%${texto}%`) },
+        { emailCliente: ILike(`%${texto}%`) },
+      ],
+      relations: { paquetesTuristicos: true },
+      order: { fechaCreacion: 'DESC' },
+    });
+
+    return {
+      totalReservas: reservas.length,
+      esClienteFrecuente: reservas.length >= UMBRAL_CLIENTE_FRECUENTE,
+      reservas,
+    };
   }
 }

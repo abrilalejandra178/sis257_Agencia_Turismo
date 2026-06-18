@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, IsNotEmpty, IsNumber, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsDefined, IsInt, IsNotEmpty, IsNumber, IsEnum, IsOptional, IsPositive, IsString } from 'class-validator';
 import { EstadoPago, MetodoPago } from '../entities/pago.entity';
 
 export class CreatePagoDto {
@@ -32,4 +32,12 @@ export class CreatePagoDto {
   @IsOptional()
   @IsString()
   readonly referenciaPago?: string;
+
+  // CAMBIO (requisito #5): monto en efectivo que entregó el cliente,
+  // usado para calcular el cambio cuando paga con un monto más alto.
+  @ApiProperty({ example: 600.0, required: false, description: 'Monto que entregó el cliente (para calcular el cambio)' })
+  @IsOptional()
+  @IsNumber({}, { message: 'El monto recibido debe ser un número' })
+  @IsPositive({ message: 'El monto recibido debe ser mayor a 0' })
+  readonly montoRecibido?: number;
 }

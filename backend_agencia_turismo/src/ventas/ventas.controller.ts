@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Body, Param, UseGuards, Query, Patch, Req } from '@nestjs/common';
 import { VentasService } from './ventas.service';
-import { CrearVentaDto, ConfirmarPagoDto } from './dto/crear-venta.dto';
+import { CrearVentaDto, ConfirmarPagoDto, CancelarReservaDto } from './dto/crear-venta.dto';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
 
 @Controller('ventas')
@@ -12,6 +12,12 @@ export class VentasController {
   async crearVenta(@Body() crearVentaDto: CrearVentaDto, @Req() req: any) {
     const idUsuario = req.user?.id;
     return this.ventasService.crearVenta(crearVentaDto, idUsuario);
+  }
+
+  // CAMBIO (requisito #7): búsqueda de cliente frecuente desde el POS.
+  @Get('buscar-cliente')
+  async buscarClienteFrecuente(@Query('query') query: string) {
+    return this.ventasService.buscarClienteFrecuente(query);
   }
 
   @Get(':id')
@@ -39,8 +45,9 @@ export class VentasController {
     return this.ventasService.obtenerReporteVentas(filtro);
   }
 
+  // CAMBIO (requisito #2): se acepta el motivo de la cancelación.
   @Patch(':id/cancelar')
-  async cancelarReserva(@Param('id') id: string) {
-    return this.ventasService.cancelarReserva(Number(id));
+  async cancelarReserva(@Param('id') id: string, @Body() cancelarReservaDto?: CancelarReservaDto) {
+    return this.ventasService.cancelarReserva(Number(id), cancelarReservaDto?.motivo);
   }
 }

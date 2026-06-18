@@ -33,6 +33,9 @@ const guias = ref<GuiaTuristico[]>([])
 const transportes = ref<Transporte[]>([])
 const paquete = ref<PaqueteTuristico>({ ...props.paquete })
 
+// CAMBIO (requisito #3): opciones fijas para los selects de Sí/No
+const opcionesSiNo = ['Sí', 'No']
+
 watch(
   () => props.paquete,
   (newVal) => {
@@ -134,15 +137,17 @@ watch(
           showButtons
         />
       </div>
+      <!-- CAMBIO (requisito #3): select Sí/No en lugar de texto libre -->
       <div class="flex items-center gap-4 mb-4">
         <label for="incluyeHospedaje" class="font-semibold w-4">Hospedaje</label>
-        <InputText id="incluyeHospedaje" v-model="paquete.incluyeHospedaje" class="flex-auto" />
+        <Select id="incluyeHospedaje" v-model="paquete.incluyeHospedaje" :options="opcionesSiNo" class="flex-auto" />
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="incluyeAlimentación" class="font-semibold w-4">Alimentación</label>
-        <InputText
+        <Select
           id="incluyeAlimentación"
           v-model="paquete.incluyeAlimentación"
+          :options="opcionesSiNo"
           class="flex-auto"
         />
       </div>

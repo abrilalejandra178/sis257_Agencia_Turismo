@@ -4,7 +4,7 @@ import http from '@/plugins/axios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import { InputNumber, Textarea } from 'primevue'
+import { Rating, Textarea } from 'primevue'
 import { computed, ref, watch } from 'vue'
 
 const ENDPOINT = 'guias-turisticos'
@@ -84,9 +84,10 @@ async function handleSave() {
         <label for="experiencia" class="font-semibold w-3">Experiencia</label>
         <Textarea id="experiencia" v-model="guia.experiencia" class="flex-auto" rows="3" maxlength="1000" />
       </div>
+      <!-- CAMBIO (requisito #4): clasificación del guía con estrellas del 1 al 5 -->
       <div class="flex items-center gap-4 mb-4">
         <label for="calificación" class="font-semibold w-3">Calificación</label>
-        <InputNumber id="calificación" v-model="guia.calificación" class="flex-auto" :min="0" :max="5" :minFractionDigits="1" :maxFractionDigits="1" />
+        <Rating id="calificación" v-model="guia.calificación" :stars="5" />
       </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />

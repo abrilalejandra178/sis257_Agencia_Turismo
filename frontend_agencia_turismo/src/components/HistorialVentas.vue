@@ -44,10 +44,16 @@ function getEstadoColor(estado: string) {
 }
 
 async function cancelarReserva(idReserva: number) {
-  if (!confirm('¿Está seguro de que desea cancelar esta reserva?')) return
+  // CAMBIO (requisito #2): se solicita el motivo antes de cancelar
+  const motivo = prompt('Ingrese el motivo de la cancelación:')
+  if (motivo === null) return // el usuario presionó "Cancelar" en el prompt
+  if (!motivo.trim()) {
+    error.value = 'Debe indicar un motivo para cancelar la reserva'
+    return
+  }
 
   try {
-    await ventasStore.cancelarReserva(idReserva)
+    await ventasStore.cancelarReserva(idReserva, motivo.trim())
     await cargarVentas()
   } catch (err) {
     error.value = 'Error cancelando la reserva'
@@ -131,7 +137,7 @@ async function cancelarReserva(idReserva: number) {
               <td class="px-6 py-4 text-sm text-green-600 font-semibold">${{ venta.adelanto.toFixed(2) }}</td>
               <td class="px-6 py-4 text-sm text-orange-600 font-semibold">${{ venta.saldoPendiente.toFixed(2) }}</td>
               <td class="px-6 py-4 text-sm">
-                <span :class="['px-3 py-1 rounded-full text-xs font-semibold capitalize', getEstadoColor(venta.estado)]">
+                <span :class="['px-3 py-1 rounded-full text-xs font-semibold capitalize', getEstadoColor(venta.estado)]" :title="venta.estado === 'cancelada' ? venta.motivoCancelacion : ''">
                   {{ venta.estado }}
                 </span>
               </td>

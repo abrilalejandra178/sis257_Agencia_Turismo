@@ -56,6 +56,15 @@ export class Pago {
   @Column('varchar', { length: 255, name: 'referencia_pago', nullable: true })
   referenciaPago?: string;
 
+  // CAMBIO (requisito #5): si el cliente paga con un monto más elevado al
+  // que debía (por ejemplo, pago en efectivo), se guarda cuánto entregó
+  // y cuánto cambio/vuelto se le devolvió.
+  @Column('decimal', { precision: 10, scale: 2, name: 'monto_recibido', nullable: true })
+  montoRecibido?: number;
+
+  @Column('decimal', { precision: 10, scale: 2, name: 'cambio', default: 0 })
+  cambio: number;
+
   @Column('int', { name: 'id_reserva' })
   idReserva: number;
 
