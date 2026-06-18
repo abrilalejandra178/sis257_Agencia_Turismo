@@ -4,7 +4,7 @@ import http from '@/plugins/axios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import { Rating, Textarea } from 'primevue'
+import { Rating, Select, Textarea } from 'primevue'
 import { computed, ref, watch } from 'vue'
 
 const ENDPOINT = 'guias-turisticos'
@@ -41,7 +41,7 @@ async function handleSave() {
       teléfono: guia.value.teléfono,
       idioma: guia.value.idioma,
       experiencia: guia.value.experiencia,
-      calificación: guia.value.calificacion,
+      calificación: guia.value.calificación,
     }
     if (props.modoEdicion) {
       await http.patch(`${ENDPOINT}/${guia.value.id}`, body)
@@ -93,11 +93,7 @@ async function handleSave() {
       <!-- CAMBIO (requisito #4): clasificación del guía con estrellas del 1 al 5 -->
       <div class="flex items-center gap-4 mb-4">
         <label for="calificación" class="font-semibold w-3">Calificación</label>
-<<<<<<< HEAD
-        <Rating id="calificación" v-model="guia.calificacion" :stars="5" />
-=======
         <Rating id="calificación" v-model="guia.calificación" :stars="5" />
->>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
       </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" @click="dialogVisible = false" />

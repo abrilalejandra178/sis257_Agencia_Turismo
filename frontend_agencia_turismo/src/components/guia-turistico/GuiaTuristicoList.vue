@@ -27,12 +27,12 @@ function mostrarEliminarConfirm(guia: GuiaTuristico) {
 
 // Permite calificar directo desde la tabla, sin abrir el diálogo de edición.
 async function actualizarCalificacion(guia: GuiaTuristico, nuevaCalificacion: number) {
-  const calificacionAnterior = guia.calificacion
-  guia.calificacion = nuevaCalificacion // actualiza la vista al toque
+  const calificacionAnterior = guia.calificación
+  guia.calificación = nuevaCalificacion // actualiza la vista al toque
   try {
-    await http.patch(`${ENDPOINT}/${guia.id}`, { calificacion: nuevaCalificacion })
+    await http.patch(`${ENDPOINT}/${guia.id}`, { calificación: nuevaCalificacion })
   } catch (error: any) {
-    guia.calificacion = calificacionAnterior // revierte si el guardado falla
+    guia.calificación = calificacionAnterior // revierte si el guardado falla
     alert(error?.response?.data?.message)
   }
 }
@@ -85,13 +85,9 @@ defineExpose({ obtenerLista })
       <Column field="teléfono" header="Teléfono" sortable />
       <Column field="idioma" header="Idioma" sortable />
       <Column field="experiencia" header="Experiencia" sortable />
-      <Column field="calificacion" header="Calificación" sortable>
+      <Column field="calificación" header="Calificación" sortable>
         <template #body="{ data }">
-<<<<<<< HEAD
-          <Rating :modelValue="data.calificacion" :stars="5" @update:modelValue="(valor) => actualizarCalificacion(data, valor)" />
-=======
-          <Rating :modelValue="data.calificación" :stars="5" readonly />
->>>>>>> 4b183ba (modificacion de imagenes,paquetes y pagos)
+          <Rating :modelValue="data.calificación" :stars="5" @update:modelValue="(valor) => actualizarCalificacion(data, valor)" />
         </template>
       </Column>
       <Column header="Acciones" style="min-width: 120px">

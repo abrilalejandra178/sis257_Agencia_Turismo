@@ -60,6 +60,7 @@ export class PaquetesTuristico {
   fechaEliminacion: Date;
 
   @ManyToOne(() => Destino, (destino) => destino.paquetesTuristicos)
+  @JoinColumn({ name: 'id_destino', referencedColumnName: 'id' })
   destino: Destino;
 
   @ManyToOne(() => GuiaTuristico, (guia) => guia.paquetesTuristicos)

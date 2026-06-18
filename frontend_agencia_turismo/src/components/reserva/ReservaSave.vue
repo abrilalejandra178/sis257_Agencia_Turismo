@@ -34,6 +34,7 @@ const fechaMinima = new Date().toISOString().slice(0, 10)
 const opcionesEstado = [
   { label: 'Pendiente', value: 'pendiente' },
   { label: 'Confirmada', value: 'confirmada' },
+  { label: 'Adelantado', value: 'adelantado' },
   { label: 'Pagada', value: 'pagada' },
   { label: 'Cancelada', value: 'cancelada' },
   { label: 'Completada', value: 'completada' },
@@ -66,6 +67,44 @@ async function cargarDatos() {
   usuarios.value = await http.get('usuarios').then((res) => res.data)
   paquetes.value = await http.get('paquetes-turisticos').then((res) => res.data)
 }
+
+// CAMBIO: valida/recalcula el costo según el paquete elegido y la cantidad
+// de personas. Se ejecuta solo cuando el usuario cambia el paquete o la
+// cantidad (no al abrir el diálogo), así no se pisa un total ya guardado
+// sin que el usuario haya tocado nada.
+function recalcularTotalSegunPaquete() {
+  const paquete = paquetes.value.find((p) => p.id === reserva.value.idPaquete)
+  if (!paquete) return
+  const personas = reserva.value.cantidadPersonas || 1
+  reserva.value.total = Number(paquete.precio) * personas
+  reserva.value.saldoPendiente = Math.max(reserva.value.total - (reserva.value.adelanto || 0), 0)
+}
+
+function onCambioPaquete(valor: number) {
+  reserva.value.idPaquete = valor
+  recalcularTotalSegunPaquete()
+}
+
+function onCambioCantidadPersonas(valor: number) {
+  reserva.value.cantidadPersonas = valor
+  recalcularTotalSegunPaquete()
+}
+
+function onCambioAdelanto(valor: number) {
+  reserva.value.adelanto = valor
+  reserva.value.saldoPendiente = Math.max((reserva.value.total || 0) - (valor || 0), 0)
+}
+
+// CAMBIO: si el administrador ajusta el total a mano (ej. un descuento),
+// el saldo pendiente se vuelve a calcular igual.
+function onCambioTotal(valor: number) {
+  reserva.value.total = valor
+  reserva.value.saldoPendiente = Math.max((valor || 0) - (reserva.value.adelanto || 0), 0)
+}
+
+const paqueteSeleccionado = computed(() =>
+  paquetes.value.find((p) => p.id === reserva.value.idPaquete),
+)
 
 // CAMBIO (requisito #7): busca por nombre, teléfono o email para saber
 // si la persona ya hizo reservas antes (cliente frecuente).
@@ -139,14 +178,6 @@ watch(
   },
 )
 
-// 🔥 AQUÍ VA EL COMPUTED (FUERA DEL WATCH)
-const cambio = computed(() => {
-  const total = reserva.value.total || 0
-  const adelanto = reserva.value.adelanto || 0
-
-  return adelanto > total ? adelanto - total : 0
-})
-
 </script>
 
 <template>
@@ -208,14 +239,19 @@ const cambio = computed(() => {
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="paquete" class="font-semibold w-4">Paquete</label>
+        <!-- CAMBIO: al elegir el paquete se recalcula el total automáticamente -->
         <Select
           id="paquete"
-          v-model="reserva.idPaquete"
+          :modelValue="reserva.idPaquete"
+          @update:modelValue="onCambioPaquete"
           :options="paquetes"
           optionLabel="nombre"
           optionValue="id"
           class="flex-auto"
         />
+      </div>
+      <div v-if="paqueteSeleccionado" class="mb-4 -mt-2 text-sm text-gray-500">
+        Precio del paquete: Bs {{ Number(paqueteSeleccionado.precio).toFixed(2) }} por persona
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="fechaReserva" class="font-semibold w-4">Fecha Reserva</label>
@@ -240,9 +276,11 @@ const cambio = computed(() => {
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="cantidadPersonas" class="font-semibold w-4">Personas</label>
+        <!-- CAMBIO: al cambiar la cantidad también se recalcula el total -->
         <InputNumber
           id="cantidadPersonas"
-          v-model="reserva.cantidadPersonas"
+          :modelValue="reserva.cantidadPersonas"
+          @update:modelValue="onCambioCantidadPersonas"
           class="flex-auto"
           :min="1"
           showButtons
@@ -252,7 +290,8 @@ const cambio = computed(() => {
         <label for="total" class="font-semibold w-4">Total</label>
         <InputNumber
           id="total"
-          v-model="reserva.total"
+          :modelValue="reserva.total"
+          @update:modelValue="onCambioTotal"
           class="flex-auto"
           :min="0"
           :minFractionDigits="2"
@@ -260,9 +299,11 @@ const cambio = computed(() => {
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="adelanto" class="font-semibold w-4">Adelanto</label>
+        <!-- CAMBIO: el saldo pendiente se recalcula solo al cambiar el adelanto -->
         <InputNumber
           id="adelanto"
-          v-model="reserva.adelanto"
+          :modelValue="reserva.adelanto"
+          @update:modelValue="onCambioAdelanto"
           class="flex-auto"
           :min="0"
           :minFractionDigits="2"
@@ -270,12 +311,15 @@ const cambio = computed(() => {
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="saldoPendiente" class="font-semibold w-4">Saldo Pendiente</label>
+        <!-- CAMBIO: ahora es de solo lectura, se calcula como total - adelanto -->
         <InputNumber
           id="saldoPendiente"
-          v-model="reserva.saldoPendiente"
+          :modelValue="reserva.saldoPendiente"
           class="flex-auto"
           :min="0"
           :minFractionDigits="2"
+          readonly
+          disabled
         />
       </div>
       <div class="flex items-center gap-4 mb-4">

@@ -16,6 +16,9 @@ import {
 export enum EstadoReserva {
   PENDIENTE = 'pendiente',
   CONFIRMADA = 'confirmada',
+  // CAMBIO: nuevo estado para cuando el cliente ya dejó un adelanto
+  // pero todavía no cubre el total de la reserva.
+  ADELANTADO = 'adelantado',
   PAGADA = 'pagada',
   CANCELADA = 'cancelada',
   COMPLETADA = 'completada',

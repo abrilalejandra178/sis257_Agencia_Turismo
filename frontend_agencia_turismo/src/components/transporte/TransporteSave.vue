@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Transporte } from '@/models/transporte'
 import http from '@/plugins/axios'
-import { Textarea } from 'primevue'
+import { Select, Textarea } from 'primevue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
